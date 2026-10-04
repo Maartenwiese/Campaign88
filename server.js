@@ -4,55 +4,144 @@ const path = require('path');
 const { WebSocketServer, WebSocket } = require('ws');
 
 const PORT = parseInt(process.env.PORT || '8080', 10);
-const MAX_PLAYERS_PER_ROOM = 5;
+const MAX_PLAYERS_PER_ROOM = 2;
 
-// Tank player colors for up to 5 players
+// Tank player colors for 2-player 1v1 duel
 const PLAYER_COLORS = [
-  { name: 'Crimson Fury', hex: '#ef4444', accent: '#991b1b', team: 1 },
-  { name: 'Cobalt Shield', hex: '#3b82f6', accent: '#1d4ed8', team: 2 },
-  { name: 'Emerald Vanguard', hex: '#10b981', accent: '#047857', team: 3 },
-  { name: 'Amber Legion', hex: '#f59e0b', accent: '#b45309', team: 4 },
-  { name: 'Amethyst Strike', hex: '#a855f7', accent: '#7e22ce', team: 5 }
+  { name: 'Crimson Vanguard', hex: '#ef4444', accent: '#991b1b', team: 1 },
+  { name: 'Cobalt Shield', hex: '#3b82f6', accent: '#1d4ed8', team: 2 }
 ];
 
-// Calculate dynamic battlefield size based on player count
+// Battlefield size for 1v1 tactical tank duel
 function getDynamicWorldSize(playerCount) {
-  const count = Math.max(1, Math.min(MAX_PLAYERS_PER_ROOM, playerCount || 1));
-  switch (count) {
-    case 1:
-    case 2:
-      return { width: 3000, height: 3000, label: 'Sector Alpha (3000x3000)' };
-    case 3:
-      return { width: 3800, height: 3400, label: 'Sector Bravo (3800x3400)' };
-    case 4:
-      return { width: 4400, height: 3800, label: 'Sector Charlie (4400x3800)' };
-    case 5:
-    default:
-      return { width: 5000, height: 4200, label: 'Grand Theater Delta (5000x4200)' };
-  }
+  return { width: 3400, height: 2600, label: 'Sector 1v1 Arena (3400x2600)' };
 }
 
-// Generate base garrisons for up to 5 players dynamically positioned around the perimeter
+// Generate base garrisons for the two opposing players (West vs East across the river)
 function generateBases(worldW, worldH) {
   return [
-    { id: 0, x: 340, y: Math.floor(worldH * 0.5), r: 180, name: 'Red Garrison (West)', color: '#ef4444' },
-    { id: 1, x: worldW - 340, y: Math.floor(worldH * 0.5), r: 180, name: 'Blue Garrison (East)', color: '#3b82f6' },
-    { id: 2, x: Math.floor(worldW * 0.5), y: 340, r: 180, name: 'Green Garrison (North)', color: '#10b981' },
-    { id: 3, x: Math.floor(worldW * 0.5), y: worldH - 340, r: 180, name: 'Amber Garrison (South)', color: '#f59e0b' },
-    { id: 4, x: Math.floor(worldW * 0.28), y: Math.floor(worldH * 0.28), r: 180, name: 'Purple Garrison (NW Outpost)', color: '#a855f7' }
+    { id: 0, x: 340, y: Math.floor(worldH * 0.5), r: 180, name: 'Crimson Base (West)', color: '#ef4444' },
+    { id: 1, x: worldW - 340, y: Math.floor(worldH * 0.5), r: 180, name: 'Cobalt Base (East)', color: '#3b82f6' }
   ];
+}
+
+// Procedural battlefield terrain generator (synchronized across both players)
+function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random() * 100000)) {
+  let s = seed;
+  function rnd() {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  }
+
+  // Randomized river X between 44% and 56% of world width
+  const riverX = Math.floor(worldW * (0.45 + rnd() * 0.10));
+  const riverWidth = 160;
+
+  // Sturdy bridges spanning across river with wide overhang to prevent any water collision
+  const bW = riverWidth + 50;
+  const bX = riverX - 25;
+  const bridge1Y = Math.floor(worldH * (0.18 + rnd() * 0.08));
+  const bridge2Y = Math.floor(worldH * 0.50);
+  const bridge3Y = Math.floor(worldH * (0.74 + rnd() * 0.08));
+
+  const bridges = [
+    { x: bX, y: bridge1Y, w: bW, h: 110, name: 'North Bridge', type: 'wood' },
+    { x: bX, y: bridge2Y, w: bW, h: 120, name: 'Central Highway Bridge', type: 'concrete' },
+    { x: bX, y: bridge3Y, w: bW, h: 110, name: 'South Pontoon Bridge', type: 'pontoon' }
+  ];
+
+  const waterBodies = [
+    { x: riverX, y: 0, w: riverWidth, h: worldH, type: 'river' }
+  ];
+
+  const roads = [
+    { x: 180, y: bridge2Y + 5, w: worldW - 360, h: 110 },
+    { x: 300, y: bridge1Y + 10, w: worldW - 600, h: 90 },
+    { x: 300, y: bridge3Y + 10, w: worldW - 600, h: 90 },
+    { x: 850, y: bridge1Y + 10, w: 90, h: bridge3Y - bridge1Y },
+    { x: worldW - 940, y: bridge1Y + 10, w: 90, h: bridge3Y - bridge1Y }
+  ];
+
+  function overlapsRoad(rx, ry, rw, rh, margin = 20) {
+    for (const r of roads) {
+      if (rx < r.x + r.w + margin && rx + rw + margin > r.x &&
+          ry < r.y + r.h + margin && ry + rh + margin > r.y) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  const mountains = [];
+  const mPassOffsets = [
+    { x: riverX - 380, y: Math.floor(worldH * 0.35) },
+    { x: riverX + 380, y: Math.floor(worldH * 0.35) },
+    { x: riverX - 380, y: Math.floor(worldH * 0.65) },
+    { x: riverX + 380, y: Math.floor(worldH * 0.65) }
+  ];
+  for (const m of mPassOffsets) {
+    mountains.push({
+      x: m.x + (rnd() - 0.5) * 40,
+      y: m.y + (rnd() - 0.5) * 40,
+      r: 95 + Math.floor(rnd() * 25),
+      peakX: -10, peakY: -15
+    });
+  }
+
+  const houses = [];
+  for (let i = 0; i < 16; i++) {
+    const hx = 350 + rnd() * (worldW - 700);
+    const hy = 250 + rnd() * (worldH - 500);
+    if (Math.abs(hx - riverX) > 190 && !overlapsRoad(hx, hy, 120, 90, 20)) {
+      houses.push({
+        x: Math.floor(hx), y: Math.floor(hy), w: 120, h: 90, hp: 220, maxHp: 220,
+        type: rnd() > 0.5 ? 'cottage' : 'bunker',
+        roofColor: rnd() > 0.5 ? '#c25e36' : '#16a34a'
+      });
+    }
+  }
+
+  const foliage = [];
+  for (let i = 0; i < 35; i++) {
+    const tx = 300 + rnd() * (worldW - 600);
+    const ty = 200 + rnd() * (worldH - 400);
+    const tr = 50 + Math.floor(rnd() * 20);
+    if (Math.abs(tx - riverX) > 160 && !overlapsRoad(tx - tr, ty - tr, tr * 2, tr * 2, 15)) {
+      foliage.push({
+        x: Math.floor(tx), y: Math.floor(ty), r: tr,
+        type: rnd() > 0.3 ? 'oak' : 'pine'
+      });
+    }
+  }
+
+  const powCamps = [
+    { x: 750 + Math.floor(rnd() * 300), y: 400 + Math.floor(rnd() * 250), w: 100, hp: 180, maxHp: 180 },
+    { x: worldW - 1050 + Math.floor(rnd() * 300), y: worldH - 650 + Math.floor(rnd() * 250), w: 100, hp: 180, maxHp: 180 }
+  ];
+
+  return {
+    seed,
+    riverX,
+    riverWidth,
+    bridges,
+    waterBodies,
+    roads,
+    mountains,
+    houses,
+    foliage,
+    powCamps
+  };
 }
 
 // Generate scaled river and bridge crossings
 function generateRiverAndBridges(worldW, worldH) {
   const riverX = Math.floor(worldW * 0.5);
-  const riverWidth = 140;
+  const riverWidth = 160;
   
-  // Bridges spaced across the river
   const bridges = [
-    { x: riverX - 10, y: Math.floor(worldH * 0.22), w: riverWidth + 20, h: 100, name: 'North Bridge' },
-    { x: riverX - 10, y: Math.floor(worldH * 0.50), w: riverWidth + 20, h: 120, name: 'Central Highway Bridge' },
-    { x: riverX - 10, y: Math.floor(worldH * 0.78), w: riverWidth + 20, h: 100, name: 'South Pontoon Bridge' }
+    { x: riverX - 25, y: Math.floor(worldH * 0.22), w: riverWidth + 50, h: 110, name: 'North Bridge' },
+    { x: riverX - 25, y: Math.floor(worldH * 0.50), w: riverWidth + 50, h: 120, name: 'Central Highway Bridge' },
+    { x: riverX - 25, y: Math.floor(worldH * 0.78), w: riverWidth + 50, h: 110, name: 'South Pontoon Bridge' }
   ];
 
   return { riverX, riverWidth, bridges };
@@ -76,13 +165,18 @@ class Room {
     this.timerInterval = null;
     this.world = getDynamicWorldSize(1);
     this.bases = generateBases(this.world.width, this.world.height);
-    this.riverData = generateRiverAndBridges(this.world.width, this.world.height);
+    this.seed = Math.floor(Math.random() * 900000) + 100000;
+    this.terrain = generateProceduralTerrain(this.world.width, this.world.height, this.seed);
+    this.riverData = {
+      riverX: this.terrain.riverX,
+      riverWidth: this.terrain.riverWidth,
+      bridges: this.terrain.bridges
+    };
   }
 
   updateWorldScaling() {
     this.world = getDynamicWorldSize(this.players.size);
     this.bases = generateBases(this.world.width, this.world.height);
-    this.riverData = generateRiverAndBridges(this.world.width, this.world.height);
     
     // Reposition players at their respective bases if still in lobby
     let idx = 0;
@@ -96,13 +190,14 @@ class Room {
       player.x = base.x;
       player.y = base.y;
       player.angle = idx === 1 ? Math.PI : 0;
+      player.turretAngle = idx === 1 ? Math.PI : 0;
       idx++;
     }
   }
 
   addPlayer(id, ws, playerName, tankClass = 'medium') {
     if (this.players.size >= MAX_PLAYERS_PER_ROOM) {
-      return { success: false, error: 'ROOM_FULL', message: 'Game session is full! Maximum 5 players allowed.' };
+      return { success: false, error: 'ROOM_FULL', message: 'Game session is full! Maximum 2 players allowed for 1v1 duel.' };
     }
     if (this.status !== 'lobby') {
       return { success: false, error: 'GAME_IN_PROGRESS', message: 'Battle is already underway in this sector!' };
@@ -165,12 +260,28 @@ class Room {
     this.timeRemaining = this.matchDuration;
     this.updateWorldScaling();
 
-    // Assign full health and positions
+    // Generate fresh procedural terrain for the duel
+    this.seed = Math.floor(Math.random() * 900000) + 100000;
+    this.terrain = generateProceduralTerrain(this.world.width, this.world.height, this.seed);
+    this.riverData = {
+      riverX: this.terrain.riverX,
+      riverWidth: this.terrain.riverWidth,
+      bridges: this.terrain.bridges
+    };
+
+    // Assign full health and base spawn positions
+    let idx = 0;
     for (const player of this.players.values()) {
+      const base = this.bases[idx % this.bases.length];
       player.health = player.maxHealth;
       player.fuel = 100;
       player.pows = 0;
       player.mines = 5;
+      player.x = base.x;
+      player.y = base.y;
+      player.angle = idx === 1 ? Math.PI : 0;
+      player.turretAngle = idx === 1 ? Math.PI : 0;
+      idx++;
     }
 
     if (this.timerInterval) clearInterval(this.timerInterval);
@@ -246,6 +357,8 @@ class Room {
       playerCount: this.players.size,
       world: this.world,
       bases: this.bases,
+      seed: this.seed,
+      terrain: this.terrain,
       riverData: this.riverData,
       timeRemaining: this.timeRemaining,
       players: Array.from(this.players.values()).map(p => ({
@@ -256,6 +369,10 @@ class Room {
         team: p.team,
         teamName: p.teamName,
         tankClass: p.tankClass,
+        x: p.x,
+        y: p.y,
+        angle: p.angle,
+        turretAngle: p.turretAngle,
         ready: p.ready,
         score: p.score,
         kills: p.kills,
@@ -576,11 +693,24 @@ wss.on('connection', (ws) => {
           break;
         }
 
+        // Drone strike event
+        case 'drone_strike': {
+          if (!currentRoom || currentRoom.status !== 'playing') return;
+          currentRoom.broadcast({
+            type: 'drone_strike_launched',
+            callerId: playerId,
+            targetX: msg.targetX,
+            targetY: msg.targetY
+          }, playerId);
+          break;
+        }
+
         // Damage & Kill notification
         case 'player_hit': {
           if (!currentRoom || currentRoom.status !== 'playing') return;
-          const victim = currentRoom.players.get(msg.victimId);
-          const attacker = currentRoom.players.get(playerId);
+          const targetId = msg.victimId || msg.targetId;
+          const victim = currentRoom.players.get(targetId);
+          const attacker = currentRoom.players.get(msg.shooterId || playerId);
 
           if (victim) {
             victim.health = Math.max(0, victim.health - msg.damage);

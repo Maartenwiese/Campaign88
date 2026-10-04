@@ -1610,19 +1610,9 @@
     to { opacity: 1; transform: translateX(-50%) scale(1.04); }
   }
 
-  /* Cheat Mode Neon Badges */
-  .cheat-mode-badge {
-    display: none;
-    background: linear-gradient(135deg, #b45309, #d97706);
-    border: 2px solid #fef08a;
-    color: #ffffff;
-    font-family: 'VT323', monospace;
-    font-size: 1.05rem;
-    letter-spacing: 1.5px;
-    padding: 2px 8px;
-    border-radius: 3px;
-    box-shadow: 0 0 12px rgba(251, 191, 36, 0.7);
-    animation: cheatGlow 1.2s infinite alternate;
+  /* Cheat Mode Neon Badges (Hidden per requirement: hide the god mode button) */
+  .cheat-mode-badge, #cheat-mode-badge {
+    display: none !important;
   }
   @keyframes cheatGlow {
     from { box-shadow: 0 0 6px rgba(251, 191, 36, 0.5); }
@@ -1747,7 +1737,7 @@
         <div class="mp-header">
           <div class="mp-badge">COMMUNICATIONS RELAY // MULTIPLAYER BATTLEFIELD</div>
           <h2 class="mp-title">TACTICAL NETWORK</h2>
-          <div style="font-size:0.8rem; color:#94a3b8; letter-spacing:1px; margin-top:2px;">ONLINE COMBAT: 2-5 PLAYERS // ADAPTIVE BATTLEFIELD SCALING</div>
+          <div style="font-size:0.8rem; color:#94a3b8; letter-spacing:1px; margin-top:2px;">ONLINE COMBAT: 2 PLAYERS (1v1 DUEL) // DUAL BASES & RIVER BRIDGES</div>
         </div>
 
         <!-- 1. INITIAL SETUP VIEW: PLAYER CALLSIGN & GAME NAME -->
@@ -1773,10 +1763,10 @@
 
             <div class="mp-scale-pill">
               <div>
-                <strong>ADAPTIVE THEATER OF WAR:</strong>
-                <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Field expands dynamically as more players join (2P: 3000m ➔ 5P: 5000m)</div>
+                <strong>1v1 TACTICAL BATTLEFIELD:</strong>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Two opposing bases separated by a river, fortified bridges, and procedural terrain</div>
               </div>
-              <span class="mp-scale-badge">MAX 5 PLAYERS</span>
+              <span class="mp-scale-badge">MAX 2 PLAYERS</span>
             </div>
 
             <div class="mp-actions-bar">
@@ -1816,21 +1806,21 @@
               <span style="font-size:0.75rem; color:#94a3b8;">ACTIVE OPERATION:</span>
               <div id="mp-lobby-room-name" style="font-family:'VT323', monospace; font-size:1.8rem; color:#38bdf8; letter-spacing:2px;">OPERATION-88</div>
             </div>
-            <div id="mp-lobby-player-count-badge" class="mp-scale-badge">1 / 5 PLAYERS</div>
+            <div id="mp-lobby-player-count-badge" class="mp-scale-badge">1 / 2 PLAYERS</div>
           </div>
 
           <!-- Dynamic Battlefield Scaling Indicator -->
           <div class="mp-scale-pill">
             <div>
-              <strong id="mp-lobby-field-label">SECTOR ALPHA (3000x3000m)</strong>
-              <div id="mp-lobby-field-sub" style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">2 Bridges // 2 Primary Garrisons // Radar Fog of War Active</div>
+              <strong id="mp-lobby-field-label">SECTOR 1v1 ARENA (3400x2600m)</strong>
+              <div id="mp-lobby-field-sub" style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">West Base vs East Base // 3 Strategic Bridges // Radar Fog of War Active</div>
             </div>
-            <span class="mp-scale-badge" id="mp-lobby-scale-status" style="background:#0f766e;">FIELD SCALED: 1P</span>
+            <span class="mp-scale-badge" id="mp-lobby-scale-status" style="background:#0f766e;">1v1 DUEL READY</span>
           </div>
 
-          <div class="mp-label">COMBAT ROSTER (UP TO 5 COMBATANTS):</div>
+          <div class="mp-label">COMBAT ROSTER (2 PLAYERS MAX):</div>
           <div id="mp-roster-list" class="mp-roster-grid">
-            <!-- Populated dynamically with up to 5 player cards -->
+            <!-- Populated dynamically with 2 player cards -->
           </div>
 
           <!-- Class Selection inside Lobby -->
@@ -2128,7 +2118,6 @@
   </div>
   <div class="footer-actions">
     <button class="drone-strike-btn ready" id="drone-strike-btn" onclick="launchPlayerDroneStrike()" title="Launch Drone Strike (1 min cooldown)">🎯 DRONE [X]</button>
-    <span class="cheat-mode-badge" id="cheat-mode-badge">⚡ GOD MODE</span>
     <span class="weapon-upgrade-pill" id="weapon-upgrade-pill"></span>
     <button class="sound-btn" id="mpFooterBtn" onclick="openMultiplayerModal()" style="background:#0284c7; border-color:#38bdf8; color:#fff;" title="Multiplayer Network">🌐 MULTI</button>
     <button class="sound-btn" id="mobileToggleBtn" style="background:#0369a1; border-color:#38bdf8; color:#fff;" title="Switch to Mobile Full Screen Portrait Mode">📱 MOBILE</button>
@@ -2564,6 +2553,11 @@ function startGame(silent = false) {
   gameStarted = true;
   tankClassLocked = true;
   selectClass(preGameSelectedClass, true);
+
+  // Requirement: "Also every time you start the game, a new terain is being generated."
+  if (!isMultiplayerMode) {
+    initWorld();
+  }
   const intro = document.getElementById('intro-screen');
   if (intro) {
     if (silent) {
@@ -2845,9 +2839,9 @@ function updateRadarFogUI() {
 }
 
 // =========================================================================
-// ONLINE MULTIPLAYER ENGINE & DYNAMIC MAP SCALING
+// ONLINE MULTIPLAYER ENGINE & 1v1 DUEL ENGINE
 // =========================================================================
-const MAX_MP_PLAYERS = 5;
+const MAX_MP_PLAYERS = 2;
 let isMultiplayerMode = false;
 let mpSocket = null;
 let mpPlayerId = null;
@@ -2869,21 +2863,9 @@ let mpInvulnerableUntil = 0;
 let mpMyKills = 0;
 let mpMyDeaths = 0;
 
-// Dynamic battlefield sizes based on connected player count (up to 5 players)
+// Dynamic battlefield sizes based on 1v1 duel specification
 function getDynamicWorldSpec(count) {
-  const c = Math.max(1, Math.min(MAX_MP_PLAYERS, count || 1));
-  switch (c) {
-    case 1:
-    case 2:
-      return { width: 3000, height: 3000, label: 'Sector Alpha (3000x3000m)' };
-    case 3:
-      return { width: 3800, height: 3400, label: 'Sector Bravo (3800x3400m)' };
-    case 4:
-      return { width: 4400, height: 3800, label: 'Sector Charlie (4400x3800m)' };
-    case 5:
-    default:
-      return { width: 5000, height: 4200, label: 'Grand Theater Delta (5000x4200m)' };
-  }
+  return { width: 3400, height: 2600, label: 'Sector 1v1 Arena (3400x2600m)' };
 }
 
 // Dynamic Canvas Auto-Resizing
@@ -3394,9 +3376,6 @@ function activateCheatMode() {
   sfx.init();
   sfx.playFanfare();
   showToast("🌟 CHEAT MODE ENGAGED! UNLIMITED ARMOR & FUEL // MAXIMUM WEAPONS!");
-
-  const cheatBadge = document.getElementById('cheat-mode-badge');
-  if (cheatBadge) cheatBadge.style.display = 'inline-block';
 }
 window.activateCheatMode = activateCheatMode;
 
@@ -3414,7 +3393,15 @@ function launchPlayerDroneStrike() {
   let targetX = mouse.worldX;
   let targetY = mouse.worldY;
 
-  if (enemyTanks.length > 0 && Math.hypot(targetX - player.x, targetY - player.y) > 900) {
+  if (isMultiplayerMode && mpRivals && mpRivals.size > 0 && Math.hypot(targetX - player.x, targetY - player.y) > 900) {
+    for (let rival of mpRivals.values()) {
+      if (rival.health > 0) {
+        targetX = rival.x;
+        targetY = rival.y;
+        break;
+      }
+    }
+  } else if (enemyTanks.length > 0 && Math.hypot(targetX - player.x, targetY - player.y) > 900) {
     let closest = enemyTanks[0];
     let minDist = 999999;
     for (let e of enemyTanks) {
@@ -3866,17 +3853,35 @@ function handleMpServerMessage(msg) {
       if (msg.id !== mpPlayerId) {
         let rival = mpRivals.get(msg.id);
         if (!rival) {
-          rival = { id: msg.id };
+          rival = {
+            id: msg.id,
+            name: msg.name || 'RIVAL',
+            color: msg.color || '#ef4444',
+            tankClass: msg.tankClass || 'medium',
+            x: msg.x,
+            y: msg.y
+          };
           mpRivals.set(msg.id, rival);
         }
+        const moved = Math.hypot((rival.x || 0) - msg.x, (rival.y || 0) - msg.y) > 2;
         rival.x = msg.x;
         rival.y = msg.y;
         rival.angle = msg.angle;
         rival.turretAngle = msg.turretAngle;
         rival.health = msg.health;
-        rival.maxHealth = msg.maxHealth;
-        rival.score = msg.score;
+        rival.maxHealth = msg.maxHealth || 200;
+        rival.score = msg.score || 0;
         rival.specialActive = msg.specialActive;
+
+        if (moved && Math.random() < 0.45) {
+          treadMarks.push({
+            x: rival.x, y: rival.y,
+            angle: rival.angle,
+            w: 42,
+            life: 14.0, maxLife: 14.0
+          });
+          if (treadMarks.length > 250) treadMarks.shift();
+        }
       }
       break;
 
@@ -3889,13 +3894,17 @@ function handleMpServerMessage(msg) {
           vy: msg.vy,
           turretAngle: msg.turretAngle,
           dist: 0,
-          maxDist: 600,
+          maxDist: 850,
           fromPlayer: false,
           damage: msg.damage || 40,
           splash: msg.splash || 38,
           isRival: true,
-          shooterId: msg.shooterId
+          team: 2,
+          color: '#ef4444',
+          shooterId: msg.shooterId,
+          life: 2.5
         });
+        sfx.playCannon();
       }
       break;
 
@@ -3905,8 +3914,28 @@ function handleMpServerMessage(msg) {
           x: msg.x,
           y: msg.y,
           r: 16,
-          detonated: false,
+          armTime: Date.now() + 800,
+          team: 2,
+          isRival: true,
           ownerId: msg.ownerId
+        });
+      }
+      break;
+
+    case 'drone_strike_launched':
+      if (msg.callerId !== mpPlayerId) {
+        sfx.playAirRaid();
+        showToast("⚠️ OPPONENT LAUNCHED DRONE STRIKE! SEEK COVER!");
+        activeAirStrikes.push({
+          x: msg.targetX - 700,
+          y: msg.targetY - 700,
+          targetX: msg.targetX,
+          targetY: msg.targetY,
+          angle: Math.PI / 4,
+          speed: 720,
+          missilesFired: false,
+          life: 2.8,
+          maxLife: 2.8
         });
       }
       break;
@@ -3954,26 +3983,26 @@ function updateLobbyUI(room) {
   if (nameEl) nameEl.textContent = room.roomName;
 
   const countBadge = document.getElementById('mp-lobby-player-count-badge');
-  if (countBadge) countBadge.textContent = `${room.players.length} / 5 PLAYERS`;
+  if (countBadge) countBadge.textContent = `${room.players.length} / 2 PLAYERS`;
 
   // Dynamic map scaling display
-  const scaleSpec = getDynamicWorldSpec(room.players.length);
+  const scaleSpec = getDynamicWorldSpec(2);
   const fieldLabel = document.getElementById('mp-lobby-field-label');
-  if (fieldLabel) fieldLabel.textContent = `${scaleSpec.label.toUpperCase()}`;
+  if (fieldLabel) fieldLabel.textContent = `1v1 DUEL THEATER`;
 
   const scaleStatus = document.getElementById('mp-lobby-scale-status');
-  if (scaleStatus) scaleStatus.textContent = `FIELD SCALED: ${room.players.length}P`;
+  if (scaleStatus) scaleStatus.textContent = `DUEL SECTOR: 2P`;
 
   const fieldSub = document.getElementById('mp-lobby-field-sub');
   if (fieldSub) {
-    fieldSub.textContent = `Dynamic Theater // ${room.players.length} Garrison Outposts // Radar Fog Active`;
+    fieldSub.textContent = `1v1 Duel Arena // Opposing River Bases // Procedural Fog of War`;
   }
 
   // Populate player roster
   const roster = document.getElementById('mp-roster-list');
   if (roster) {
     const slots = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 2; i++) {
       const p = room.players[i];
       if (p) {
         slots.push(`
@@ -3995,7 +4024,7 @@ function updateLobbyUI(room) {
           <div class="mp-player-card" style="opacity:0.4; border-style:dashed;">
             <div class="mp-player-info">
               <div class="mp-color-dot" style="background:#475569;"></div>
-              <span class="mp-player-name" style="color:#64748b;">[RESERVED COMBATANT SLOT ${i + 1}]</span>
+              <span class="mp-player-name" style="color:#64748b;">[RESERVED DUEL OPPONENT SLOT ${i + 1}]</span>
             </div>
             <div class="mp-ready-badge not-ready">EMPTY</div>
           </div>
@@ -4028,23 +4057,24 @@ function startMultiplayerCombat(room) {
   gameStarted = true;
   document.getElementById('intro-screen').style.display = 'none';
 
-  // Scale the playing field dynamically based on player count
-  setDynamicMultiplayerWorld(room.players.length);
+  // Build the synchronized 1v1 battlefield from room terrain data
+  setDynamicMultiplayerWorld(room);
 
   // Sync rivals
   mpRivals.clear();
   room.players.forEach(p => {
     if (p.id !== mpPlayerId) {
+      const oppBase = mpBases[(mpLocalPlayerSlot + 1) % mpBases.length] || { x: WORLD_W - 340, y: Math.floor(WORLD_H * 0.5) };
       mpRivals.set(p.id, {
         id: p.id,
         name: p.name,
         color: p.color,
         team: p.team,
         tankClass: p.tankClass,
-        x: p.x || 340,
-        y: p.y || 1500,
-        angle: 0,
-        turretAngle: 0,
+        x: p.x || oppBase.x,
+        y: p.y || oppBase.y,
+        angle: p.angle !== undefined ? p.angle : Math.PI,
+        turretAngle: p.turretAngle !== undefined ? p.turretAngle : Math.PI,
         health: p.health || 200,
         maxHealth: p.maxHealth || 200,
         score: p.score || 0
@@ -4059,7 +4089,7 @@ function startMultiplayerCombat(room) {
   mpMatchTimeRemaining = room.timeRemaining || 180;
   updateMatchHud();
 
-  showToast(`COMMENCE OPERATION! ${room.players.length} TANKS ENGAGED!`);
+  showToast(`COMMENCE 1v1 DUEL! ${room.players.length} TANKS ENGAGED!`);
 }
 
 function updateMatchHud() {
@@ -4071,7 +4101,7 @@ function updateMatchHud() {
   const kEl = document.getElementById('mp-hud-kills');
   if (kEl) kEl.textContent = `KILLS: ${mpMyKills}`;
   const aEl = document.getElementById('mp-hud-alive');
-  if (aEl) aEl.textContent = `PLAYERS: ${(mpRivals ? mpRivals.size + 1 : 1)}/5`;
+  if (aEl) aEl.textContent = `PLAYERS: ${(mpRivals ? mpRivals.size + 1 : 1)}/2`;
 }
 
 function respawnMultiplayerPlayer() {
@@ -4151,8 +4181,8 @@ function closeLeaderboardToSolo() {
   startGame();
 }
 
-function setDynamicMultiplayerWorld(playerCount) {
-  const spec = getDynamicWorldSpec(playerCount);
+function setDynamicMultiplayerWorld(room) {
+  const spec = (room && room.world) ? room.world : getDynamicWorldSpec(2);
   WORLD_W = spec.width;
   WORLD_H = spec.height;
   currentWorldLabel = spec.label;
@@ -4174,40 +4204,24 @@ function setDynamicMultiplayerWorld(playerCount) {
   bridges = [];
   mountains = [];
 
-  const riverX = Math.floor(WORLD_W * 0.5);
-  const riverW = 160;
-  waterBodies.push({ x: riverX, y: 0, w: riverW, h: WORLD_H, type: 'river' });
+  const t = (room && room.terrain) ? room.terrain : null;
+  if (t) {
+    waterBodies = JSON.parse(JSON.stringify(t.waterBodies || []));
+    bridges = JSON.parse(JSON.stringify(t.bridges || []));
+    roads = JSON.parse(JSON.stringify(t.roads || []));
+    mountains = JSON.parse(JSON.stringify(t.mountains || []));
+    houses = JSON.parse(JSON.stringify(t.houses || []));
+    foliage = JSON.parse(JSON.stringify(t.foliage || []));
+    powCamps = JSON.parse(JSON.stringify(t.powCamps || []));
+  } else {
+    initWorld(room ? room.seed : undefined);
+    return;
+  }
 
-  // Bridges dynamically spaced across the river
-  const bridgeSpacing = [0.22, 0.50, 0.78];
-  bridgeSpacing.forEach((ratio, idx) => {
-    bridges.push({
-      x: riverX - 10,
-      y: Math.floor(WORLD_H * ratio),
-      w: riverW + 20,
-      h: 105,
-      type: idx === 1 ? 'concrete' : (idx === 0 ? 'wood' : 'pontoon')
-    });
-  });
-
-  // Roads connecting the sectors
-  roads.push({ x: 200, y: Math.floor(WORLD_H * 0.50), w: WORLD_W - 400, h: 105 });
-  roads.push({ x: 400, y: Math.floor(WORLD_H * 0.22), w: WORLD_W - 800, h: 85 });
-  roads.push({ x: 400, y: Math.floor(WORLD_H * 0.78), w: WORLD_W - 800, h: 85 });
-
-  // Mountains as crags and tactical chokepoints
-  mountains.push({ x: riverX - 380, y: Math.floor(WORLD_H * 0.35), r: 105, peakX: -10, peakY: -15 });
-  mountains.push({ x: riverX + 380, y: Math.floor(WORLD_H * 0.35), r: 110, peakX: -10, peakY: -15 });
-  mountains.push({ x: riverX - 380, y: Math.floor(WORLD_H * 0.65), r: 105, peakX: -10, peakY: -15 });
-  mountains.push({ x: riverX + 380, y: Math.floor(WORLD_H * 0.65), r: 110, peakX: -10, peakY: -15 });
-
-  // Bases positioned across perimeter sectors
-  mpBases = [
+  // 1v1 Bases positioned across river
+  mpBases = (room && room.bases) ? room.bases : [
     { id: 0, x: 340, y: Math.floor(WORLD_H * 0.5), r: 180, name: 'Crimson Base (West)', color: '#ef4444' },
-    { id: 1, x: WORLD_W - 340, y: Math.floor(WORLD_H * 0.5), r: 180, name: 'Cobalt Base (East)', color: '#3b82f6' },
-    { id: 2, x: Math.floor(WORLD_W * 0.5), y: 340, r: 180, name: 'Emerald Base (North)', color: '#10b981' },
-    { id: 3, x: Math.floor(WORLD_W * 0.5), y: WORLD_H - 340, r: 180, name: 'Amber Base (South)', color: '#f59e0b' },
-    { id: 4, x: Math.floor(WORLD_W * 0.28), y: Math.floor(WORLD_H * 0.28), r: 180, name: 'Amethyst Base (NW Outpost)', color: '#a855f7' }
+    { id: 1, x: WORLD_W - 340, y: Math.floor(WORLD_H * 0.5), r: 180, name: 'Cobalt Base (East)', color: '#3b82f6' }
   ];
 
   // Assign local player spawn base
@@ -4215,31 +4229,9 @@ function setDynamicMultiplayerWorld(playerCount) {
   player.x = myBase.x;
   player.y = myBase.y;
   player.angle = mpLocalPlayerSlot === 1 ? Math.PI : 0;
+  player.turretAngle = player.angle;
   homeBase.x = myBase.x;
-  // Spawn tactical outposts and groves clear of roads in multiplayer
-  for (let i = 0; i < 10; i++) {
-    const hx = 350 + Math.random() * (WORLD_W - 700);
-    const hy = 250 + Math.random() * (WORLD_H - 500);
-    if (Math.abs(hx - riverX) > 180) {
-      if (!doesRectOverlapRoad(hx, hy, 120, 90, 15)) {
-        houses.push({
-          x: hx, y: hy, w: 120, h: 90, hp: 220, maxHp: 220,
-          type: 'cottage', roofColor: '#c25e36'
-        });
-      }
-    }
-  }
-
-  for (let i = 0; i < 20; i++) {
-    const tx = 300 + Math.random() * (WORLD_W - 600);
-    const ty = 200 + Math.random() * (WORLD_H - 400);
-    const tr = 55 + Math.random() * 15;
-    if (Math.abs(tx - riverX) > 140) {
-      if (!doesCircleOverlapRoad(tx, ty, tr, 15)) {
-        foliage.push({ x: tx, y: ty, r: tr, type: Math.random() > 0.3 ? 'oak' : 'pine' });
-      }
-    }
-  }
+  homeBase.y = myBase.y;
 
   // Reinitialize Radar Fog of War for new dynamic world size
   initRadarFogOfWar(WORLD_W, WORLD_H, myBase);
@@ -4308,8 +4300,15 @@ function showToast(msg) {
   t.timer = setTimeout(() => t.style.opacity = '0', 2500);
 }
 
-// --- WORLD INITIALIZATION (Expanded 4600x3000 Battlefield with Rich Obstacles) ---
-function initWorld() {
+// --- WORLD INITIALIZATION (Procedural Terrain Generated on EVERY Game Start) ---
+function initWorld(seed) {
+  const sSeed = (seed !== undefined) ? seed : (Math.floor(Math.random() * 900000) + 100000);
+  let s = sSeed;
+  function rnd() {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  }
+
   walls = [];
   houses = [];
   foliage = [];
@@ -4326,119 +4325,69 @@ function initWorld() {
   bridges = [];
   mountains = [];
 
-  // 1. Water Bodies (Central River & Lakes)
-  // Great North-South River: divides the western forest from eastern desert
-  waterBodies.push({ x: 2160, y: 0, w: 180, h: WORLD_H, type: 'river' });
-  // Northern Forest Lake
-  waterBodies.push({ x: 1380, y: 550, r: 110, type: 'circle' });
-  // Southern Marsh Lake
-  waterBodies.push({ x: 1380, y: 2450, r: 110, type: 'circle' });
+  // 1. Water Bodies (Procedural River dividing West and East sectors)
+  const riverX = Math.floor(WORLD_W * (0.45 + rnd() * 0.10));
+  const riverW = 160;
+  waterBodies.push({ x: riverX, y: 0, w: riverW, h: WORLD_H, type: 'river' });
 
-  // 2. Bridges across the River (Tanks require a bridge to cross!)
-  // North Timber Bridge (leads through northern mountain pass)
-  bridges.push({ x: 2120, y: 560, w: 260, h: 90, type: 'wood' });
-  // Central Concrete Highway Bridge (main direct crossing)
-  bridges.push({ x: 2120, y: 1445, w: 260, h: 110, type: 'concrete' });
-  // South Military Pontoon Bridge (leads through southern mountain pass)
-  bridges.push({ x: 2120, y: 2280, w: 260, h: 95, type: 'pontoon' });
+  // Natural lakes
+  waterBodies.push({ x: Math.floor(riverX * 0.62), y: Math.floor(WORLD_H * (0.16 + rnd() * 0.08)), r: 105, type: 'circle' });
+  waterBodies.push({ x: Math.floor(riverX * 0.62), y: Math.floor(WORLD_H * (0.76 + rnd() * 0.08)), r: 105, type: 'circle' });
 
-  // 3. Mountain Ranges (Craggy peaks tanks must drive around!)
-  // North Mountain Ridge (creates the North Mountain Pass)
-  mountains.push({ x: 1650, y: 340, r: 95, peakX: -10, peakY: -15 });
-  mountains.push({ x: 1820, y: 310, r: 115, peakX: -12, peakY: -18 });
-  mountains.push({ x: 1980, y: 350, r: 100, peakX: -10, peakY: -15 });
-  mountains.push({ x: 1720, y: 200, r: 90, peakX: -8, peakY: -12 });
-  mountains.push({ x: 1890, y: 180, r: 105, peakX: -10, peakY: -15 });
+  // 2. Bridges across the River (Wide decks extending onto both banks to allow smooth crossing)
+  const bridgeWidth = riverW + 50;
+  const bridgeX = riverX - 25;
+  const bridge1Y = Math.floor(WORLD_H * (0.18 + rnd() * 0.08));
+  const bridge2Y = Math.floor(WORLD_H * 0.50);
+  const bridge3Y = Math.floor(WORLD_H * (0.74 + rnd() * 0.08));
 
-  // South Mountain Ridge (creates the South Mountain Pass)
-  mountains.push({ x: 1660, y: 2650, r: 100, peakX: -10, peakY: -15 });
-  mountains.push({ x: 1830, y: 2620, r: 120, peakX: -12, peakY: -18 });
-  mountains.push({ x: 2000, y: 2680, r: 105, peakX: -10, peakY: -15 });
-  mountains.push({ x: 1740, y: 2800, r: 95, peakX: -8, peakY: -12 });
-  mountains.push({ x: 1910, y: 2820, r: 100, peakX: -10, peakY: -15 });
+  bridges.push({ x: bridgeX, y: bridge1Y, w: bridgeWidth, h: 110, name: 'North Bridge', type: 'wood' });
+  bridges.push({ x: bridgeX, y: bridge2Y, w: bridgeWidth, h: 120, name: 'Central Highway Bridge', type: 'concrete' });
+  bridges.push({ x: bridgeX, y: bridge3Y, w: bridgeWidth, h: 110, name: 'South Pontoon Bridge', type: 'pontoon' });
 
-  // East Desert Crags (Rocky natural bastions near enemy territory)
-  mountains.push({ x: 2780, y: 1020, r: 90, peakX: -10, peakY: -15 });
-  mountains.push({ x: 2940, y: 980, r: 105, peakX: -12, peakY: -16 });
-  mountains.push({ x: 2780, y: 1980, r: 90, peakX: -10, peakY: -15 });
-  mountains.push({ x: 2940, y: 2020, r: 105, peakX: -12, peakY: -16 });
+  // 3. Strategic Highways & Roads
+  roads.push({ x: 180, y: bridge2Y + 5, w: WORLD_W - 360, h: 110 });
+  roads.push({ x: 300, y: bridge1Y + 10, w: WORLD_W - 600, h: 90 });
+  roads.push({ x: 300, y: bridge3Y + 10, w: WORLD_W - 600, h: 90 });
+  roads.push({ x: 850, y: bridge1Y + 10, w: 90, h: bridge3Y - bridge1Y });
+  roads.push({ x: WORLD_W - 940, y: bridge1Y + 10, w: 90, h: bridge3Y - bridge1Y });
 
-  // 4. Strategic Dirt Highways and Roads
-  // Main Highway West to Central Bridge
-  roads.push({ x: 200, y: 1445, w: 1930, h: 110 });
-  // Main Highway East from Central Bridge to Enemy Base
-  roads.push({ x: 2370, y: 1445, w: 1900, h: 110 });
-
-  // North Route: Western approach to North Timber Bridge
-  roads.push({ x: 900, y: 560, w: 1230, h: 90 });
-  roads.push({ x: 2370, y: 560, w: 1100, h: 90 });
-
-  // South Route: Western approach to South Pontoon Bridge
-  roads.push({ x: 900, y: 2280, w: 1230, h: 90 });
-  roads.push({ x: 2370, y: 2280, w: 1100, h: 90 });
-
-  // Western North-South Connector
-  roads.push({ x: 900, y: 560, w: 90, h: 1810 });
-  // Eastern North-South Connector
-  roads.push({ x: 3450, y: 560, w: 90, h: 1810 });
-
-  // 5. Starting Compound (fp1.jpeg style breach & green bunker)
-  walls.push({ x: 180, y: 1240, w: 260, h: 48, hp: 150, maxHp: 150 });
-  houses.push({ x: 460, y: 1180, w: 120, h: 100, hp: 220, maxHp: 220, type: 'bunker', roofColor: '#16a34a' });
-  walls.push({ x: 600, y: 920, w: 48, h: 260, hp: 150, maxHp: 150 });
-
-  // Breach wall corridor with rubble (fp1.jpeg)
-  walls.push({ x: 180, y: 1680, w: 220, h: 48, hp: 150, maxHp: 150 });
-  walls.push({ x: 500, y: 1680, w: 180, h: 48, hp: 100, maxHp: 150 });
-  for (let i = 0; i < 28; i++) {
-    rubbleChunks.push({
-      x: 400 + Math.random() * 100,
-      y: 1675 + Math.random() * 55,
-      w: 6 + Math.random() * 10,
-      h: 6 + Math.random() * 10,
-      color: Math.random() > 0.4 ? '#64748b' : '#94a3b8'
+  // 4. Mountains as tactical bastions flanking the passes
+  const mOffsets = [
+    { x: riverX - 380, y: Math.floor(WORLD_H * 0.35) },
+    { x: riverX + 380, y: Math.floor(WORLD_H * 0.35) },
+    { x: riverX - 380, y: Math.floor(WORLD_H * 0.65) },
+    { x: riverX + 380, y: Math.floor(WORLD_H * 0.65) },
+    { x: Math.floor(riverX * 0.4), y: Math.floor(WORLD_H * 0.12) },
+    { x: WORLD_W - Math.floor(riverX * 0.4), y: Math.floor(WORLD_H * 0.88) }
+  ];
+  for (const m of mOffsets) {
+    mountains.push({
+      x: m.x + (rnd() - 0.5) * 40,
+      y: m.y + (rnd() - 0.5) * 40,
+      r: 95 + Math.floor(rnd() * 25),
+      peakX: -10, peakY: -15
     });
   }
 
-  // Helper functions ensuring NO house or tree is placed on roads
-  function addHouse(h) {
-    if (!doesRectOverlapRoad(h.x, h.y, h.w, h.h, 12)) {
-      houses.push(h);
-    }
+  // 5. Starting Compound Breach Wall (fp1.jpeg)
+  walls.push({ x: 180, y: bridge2Y - 200, w: 260, h: 48, hp: 150, maxHp: 150 });
+  houses.push({ x: 460, y: bridge2Y - 260, w: 120, h: 100, hp: 220, maxHp: 220, type: 'bunker', roofColor: '#16a34a' });
+  walls.push({ x: 600, y: bridge2Y - 520, w: 48, h: 260, hp: 150, maxHp: 150 });
+
+  walls.push({ x: 180, y: bridge2Y + 240, w: 220, h: 48, hp: 150, maxHp: 150 });
+  walls.push({ x: 500, y: bridge2Y + 240, w: 180, h: 48, hp: 100, maxHp: 150 });
+  for (let i = 0; i < 28; i++) {
+    rubbleChunks.push({
+      x: 400 + rnd() * 100,
+      y: bridge2Y + 235 + rnd() * 55,
+      w: 6 + rnd() * 10,
+      h: 6 + rnd() * 10,
+      color: rnd() > 0.4 ? '#64748b' : '#94a3b8'
+    });
   }
 
-  function addTree(tl) {
-    if (!doesCircleOverlapRoad(tl.x, tl.y, tl.r, 12)) {
-      foliage.push({ x: tl.x, y: tl.y, r: tl.r, type: Math.random() > 0.3 ? 'oak' : 'pine' });
-    }
-  }
-
-  // 6. Small Houses & Outposts (Cleared from roads)
-  // Roadside Outposts (safely west of western N-S connector road)
-  addHouse({ x: 740, y: 1260, w: 120, h: 90, hp: 190, maxHp: 190, type: 'cottage', roofColor: '#c25e36' });
-  addHouse({ x: 740, y: 1650, w: 130, h: 95, hp: 210, maxHp: 210, type: 'cottage', roofColor: '#b45309' });
-
-  // West Village (Lush Forest Biome - safely spaced from roads)
-  addHouse({ x: 1040, y: 780, w: 110, h: 90, hp: 180, maxHp: 180, type: 'cottage', roofColor: '#c25e36' });
-  addHouse({ x: 1220, y: 750, w: 130, h: 95, hp: 200, maxHp: 200, type: 'cottage', roofColor: '#b45309' });
-  addHouse({ x: 1040, y: 960, w: 120, h: 90, hp: 180, maxHp: 180, type: 'cottage', roofColor: '#c25e36' });
-  addHouse({ x: 1220, y: 980, w: 140, h: 105, hp: 240, maxHp: 240, type: 'barracks', roofColor: '#475569' });
-  addHouse({ x: 740, y: 1980, w: 120, h: 90, hp: 180, maxHp: 180, type: 'cottage', roofColor: '#c25e36' });
-  addHouse({ x: 1040, y: 2040, w: 130, h: 95, hp: 200, maxHp: 200, type: 'cottage', roofColor: '#b45309' });
-
-  // Bridgehead Outposts & Fortified Barracks
-  addHouse({ x: 1980, y: 1260, w: 140, h: 95, hp: 260, maxHp: 260, type: 'barracks', roofColor: '#334155' });
-  addHouse({ x: 1980, y: 1640, w: 140, h: 95, hp: 260, maxHp: 260, type: 'barracks', roofColor: '#334155' });
-  addHouse({ x: 2420, y: 1260, w: 150, h: 100, hp: 280, maxHp: 280, type: 'warehouse', roofColor: '#64748b' });
-  addHouse({ x: 2420, y: 1640, w: 150, h: 100, hp: 280, maxHp: 280, type: 'warehouse', roofColor: '#64748b' });
-
-  // East Depot & Village (Desert Biome - safely spaced from road)
-  addHouse({ x: 3220, y: 820, w: 160, h: 110, hp: 300, maxHp: 300, type: 'warehouse', roofColor: '#475569' });
-  addHouse({ x: 3620, y: 840, w: 120, h: 90, hp: 200, maxHp: 200, type: 'cottage', roofColor: '#c25e36' });
-  addHouse({ x: 3220, y: 2020, w: 160, h: 100, hp: 280, maxHp: 280, type: 'barracks', roofColor: '#334155' });
-  addHouse({ x: 3620, y: 2060, w: 130, h: 95, hp: 220, maxHp: 220, type: 'cottage', roofColor: '#b45309' });
-
-  // 7. Perimeter Walls & Bridgehead Defenses
+  // Perimeter walls
   for (let x = 80; x < WORLD_W - 80; x += 80) {
     walls.push({ x, y: 60, w: 80, h: 48, hp: 120, maxHp: 120 });
     walls.push({ x, y: WORLD_H - 108, w: 80, h: 48, hp: 120, maxHp: 120 });
@@ -4448,85 +4397,108 @@ function initWorld() {
     walls.push({ x: WORLD_W - 108, y, w: 48, h: 80, hp: 120, maxHp: 120 });
   }
 
-  walls.push({ x: 2020, y: 700, w: 100, h: 48, hp: 180, maxHp: 180 });
-  walls.push({ x: 2020, y: 2150, w: 100, h: 48, hp: 180, maxHp: 180 });
-  walls.push({ x: 2420, y: 700, w: 100, h: 48, hp: 180, maxHp: 180 });
-  walls.push({ x: 2420, y: 2150, w: 100, h: 48, hp: 180, maxHp: 180 });
-
-  // Enemy Fortress Compound Walls (East)
-  for (let y = 1050; y <= 1950; y += 75) {
-    if (Math.abs(y - 1500) < 90) {
-      walls.push({ x: 3880, y, w: 50, h: 75, hp: 240, maxHp: 240, isGate: true });
-    } else {
-      walls.push({ x: 3880, y, w: 50, h: 75, hp: 200, maxHp: 200 });
+  function addHouse(h) {
+    if (!doesRectOverlapRoad(h.x, h.y, h.w, h.h, 20)) {
+      houses.push(h);
     }
   }
 
-  // 8. Helipads & Missile Silos
-  silos.push({ x: 680, y: 1260, r: 75 });
-  silos.push({ x: 3960, y: 1140, r: 75 });
-  silos.push({ x: 1980, y: 550, r: 75 });
+  function addTree(tl) {
+    if (!doesCircleOverlapRoad(tl.x, tl.y, tl.r, 16)) {
+      foliage.push({ x: tl.x, y: tl.y, r: tl.r, type: rnd() > 0.3 ? 'oak' : 'pine' });
+    }
+  }
 
-  // 9. Lush Realistic Trees & Forest Belts (strictly cleared of roads)
-  const treeLocs = [
-    {x: 740, y: 1340, r: 62}, {x: 740, y: 1680, r: 58}, {x: 620, y: 1850, r: 68},
-    {x: 800, y: 680, r: 55}, {x: 1080, y: 680, r: 65}, {x: 1300, y: 820, r: 72},
-    {x: 1300, y: 1040, r: 60}, {x: 780, y: 1120, r: 58},
-    {x: 1050, y: 2150, r: 70}, {x: 1160, y: 2470, r: 65}, {x: 1300, y: 2470, r: 75},
-    {x: 1460, y: 2480, r: 68}, {x: 1640, y: 2480, r: 74}, {x: 1820, y: 2480, r: 70},
-    {x: 1150, y: 430, r: 68}, {x: 1320, y: 440, r: 75}, {x: 1520, y: 420, r: 65},
-    {x: 2060, y: 950, r: 64}, {x: 2060, y: 1120, r: 60}, {x: 2060, y: 1850, r: 62},
-    {x: 2480, y: 920, r: 55}, {x: 2480, y: 2050, r: 58},
-    {x: 3100, y: 620, r: 60}, {x: 3620, y: 680, r: 55},
-    {x: 3100, y: 2420, r: 60}, {x: 3620, y: 2420, r: 55},
-    {x: 3750, y: 1250, r: 58}, {x: 3750, y: 1750, r: 64}
-  ];
-  treeLocs.forEach(tl => addTree(tl));
+  // 6. Cottages & Bunkers (Procedural & strictly cleared of roads)
+  for (let i = 0; i < 20; i++) {
+    const hx = 350 + rnd() * (WORLD_W - 700);
+    const hy = 250 + rnd() * (WORLD_H - 500);
+    if (Math.abs(hx - riverX) > 190) {
+      addHouse({
+        x: Math.floor(hx),
+        y: Math.floor(hy),
+        w: 120,
+        h: 90,
+        hp: 200 + Math.floor(rnd() * 80),
+        maxHp: 280,
+        type: rnd() > 0.5 ? 'cottage' : 'barracks',
+        roofColor: rnd() > 0.5 ? '#c25e36' : '#b45309'
+      });
+    }
+  }
 
-  // 10. POW Prison Compounds (behind tiny gate, sometimes protected by enemy soldiers)
+  // 7. Trees & Foliage (Procedural & strictly cleared of roads)
+  for (let i = 0; i < 40; i++) {
+    const tx = 300 + rnd() * (WORLD_W - 600);
+    const ty = 200 + rnd() * (WORLD_H - 400);
+    const tr = 50 + Math.floor(rnd() * 20);
+    if (Math.abs(tx - riverX) > 160) {
+      addTree({ x: Math.floor(tx), y: Math.floor(ty), r: tr });
+    }
+  }
+
+  // 8. POW Camps
   powCamps.push({
-    x: 1750, y: 620, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
+    x: 1750, y: bridge1Y + 60, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
     hasGate: true, gateOpen: false, guarded: true, gateW: 24
   });
   powCamps.push({
-    x: 2620, y: 1500, w: 100, h: 100, hp: 320, maxHp: 320, prisoners: 8,
+    x: riverX + 460, y: bridge2Y + 55, w: 100, h: 100, hp: 320, maxHp: 320, prisoners: 8,
     hasGate: true, gateOpen: false, guarded: false, gateW: 26
   });
   powCamps.push({
-    x: 1750, y: 2380, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
+    x: 1750, y: bridge3Y + 60, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
     hasGate: true, gateOpen: false, guarded: true, gateW: 24
   });
 
-  // Spawn hostile guard soldiers protecting the guarded camps
-  powCamps.forEach(c => {
-    if (c.guarded) {
-      for (let g = 0; g < 3; g++) {
-        soldiers.push({
-          x: c.x + (g - 1) * 26,
-          y: c.y + c.h/2 + 28,
-          angle: Math.PI / 2,
-          speed: 1.0,
-          team: 2,
-          isPow: false,
-          isGuard: true,
-          repath: 1.0,
-          shootCooldown: 1.2 + Math.random() * 1.5
-        });
+  // Base Positions
+  homeBase.x = 340;
+  homeBase.y = Math.floor(WORLD_H * 0.5);
+  enemyBase.x = WORLD_W - 380;
+  enemyBase.y = Math.floor(WORLD_H * 0.5);
+
+  player.x = homeBase.x;
+  player.y = homeBase.y;
+  player.angle = 0;
+  player.turretAngle = 0;
+
+  // Solo mode defenders & targets
+  if (!isMultiplayerMode) {
+    // Guards protecting guarded camps
+    powCamps.forEach(c => {
+      if (c.guarded) {
+        for (let g = 0; g < 3; g++) {
+          soldiers.push({
+            x: c.x + (g - 1) * 26,
+            y: c.y + c.h / 2 + 28,
+            angle: Math.PI / 2,
+            speed: 1.0,
+            team: 2,
+            isPow: false,
+            isGuard: true,
+            repath: 1.0,
+            shootCooldown: 1.2 + rnd() * 1.5
+          });
+        }
       }
-    }
-  });
+    });
 
-  // 11. Heavy Base Defense Turrets
-  turrets.push({ x: 3820, y: 920, hp: 200, maxHp: 200, angle: 0, lastShot: 0 });
-  turrets.push({ x: 3820, y: 2080, hp: 200, maxHp: 200, angle: 0, lastShot: 0 });
-  turrets.push({ x: 4320, y: 1220, hp: 220, maxHp: 220, angle: 0, lastShot: 0 });
-  turrets.push({ x: 4320, y: 1780, hp: 220, maxHp: 220, angle: 0, lastShot: 0 });
+    // Base defense turrets
+    turrets.push({ x: riverX + 220, y: bridge1Y - 80, hp: 200, maxHp: 200, angle: 0, lastShot: 0 });
+    turrets.push({ x: riverX + 220, y: bridge2Y - 80, hp: 200, maxHp: 200, angle: 0, lastShot: 0 });
+    turrets.push({ x: riverX + 220, y: bridge3Y + 80, hp: 200, maxHp: 200, angle: 0, lastShot: 0 });
+    turrets.push({ x: WORLD_W - 550, y: Math.floor(WORLD_H * 0.5) - 200, hp: 220, maxHp: 220, angle: 0, lastShot: 0 });
+    turrets.push({ x: WORLD_W - 550, y: Math.floor(WORLD_H * 0.5) + 200, hp: 220, maxHp: 220, angle: 0, lastShot: 0 });
 
-  // 12. Enemy Patrol Tanks (Larger military presence)
-  spawnEnemyTank('medium', 2460, 1380);
-  spawnEnemyTank('light', 2900, 1650);
-  spawnEnemyTank('heavy', 3980, 1500);
-  spawnEnemyTank('medium', 3200, 1020);
+    // AI Patrol Tanks
+    spawnEnemyTank('medium', riverX + 320, bridge2Y);
+    spawnEnemyTank('light', riverX + 380, bridge1Y);
+    spawnEnemyTank('heavy', WORLD_W - 600, Math.floor(WORLD_H * 0.5));
+    spawnEnemyTank('medium', riverX + 380, bridge3Y);
+  }
+
+  // Reinitialize radar fog of war around player's starting base
+  initRadarFogOfWar(WORLD_W, WORLD_H, homeBase);
 }
 
 function spawnEnemyTank(type, x, y) {
@@ -4547,12 +4519,21 @@ function layMine() {
   if (player.mines <= 0) return;
   player.mines--;
   sfx.playSquish();
+  const mx = player.x - Math.cos(player.angle) * 44;
+  const my = player.y - Math.sin(player.angle) * 44;
   deployedMines.push({
-    x: player.x - Math.cos(player.angle) * 44,
-    y: player.y - Math.sin(player.angle) * 44,
+    x: mx,
+    y: my,
     armTime: Date.now() + 800,
     team: 1
   });
+  if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+    mpSocket.send(JSON.stringify({
+      type: 'lay_mine',
+      x: mx,
+      y: my
+    }));
+  }
   showToast("STEALTH MINE DEPLOYED");
 }
 
@@ -4683,6 +4664,28 @@ function update(dt) {
     }
   }
 
+  // Continuous Radar Fog of War Discovery as tank moves across terrain
+  discoverRadarArea(player.x, player.y, 450);
+
+  // Real-Time Multiplayer State Synchronization (30Hz)
+  if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+    if (!player.lastStateEmit || now - player.lastStateEmit >= 33) {
+      player.lastStateEmit = now;
+      mpSocket.send(JSON.stringify({
+        type: 'player_state',
+        x: Math.round(player.x),
+        y: Math.round(player.y),
+        angle: +player.angle.toFixed(3),
+        turretAngle: +player.turretAngle.toFixed(3),
+        health: player.health,
+        maxHealth: spec.maxHealth,
+        fuel: Math.round(player.fuel),
+        score: score,
+        specialActive: player.specialActive
+      }));
+    }
+  }
+
   // Cheat Mode Enforcements (Requirement: unlimited armor and fuel, all weapons at full strength)
   if (player.cheatMode) {
     player.health = 9999;
@@ -4758,6 +4761,19 @@ function update(dt) {
         color: shellColor,
         life: 2.4
       });
+    }
+
+    if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+      mpSocket.send(JSON.stringify({
+        type: 'fire_shell',
+        x: bx,
+        y: by,
+        vx: Math.cos(player.turretAngle) * shellSpeed,
+        vy: Math.sin(player.turretAngle) * shellSpeed,
+        damage: shellDamage,
+        splash: blastSplash,
+        turretAngle: player.turretAngle
+      }));
     }
 
     if (player.weaponUpgrade && !player.cheatMode) {
@@ -4859,31 +4875,70 @@ function update(dt) {
 
     let hit = false;
 
-    // Player damage
-    if (p.team === 2 && Math.hypot(p.x - player.x, p.y - player.y) < spec.width * 0.55) {
-      let dmg = p.damage;
-      // Requirement: Trees provide cover for the tanks
-      if (isTankUnderTreeCover(player.x, player.y)) {
-        dmg *= 0.5;
-        for (let k = 0; k < 4; k++) {
-          particles.push({
-            x: player.x + (Math.random() - 0.5) * 20,
-            y: player.y + (Math.random() - 0.5) * 20,
-            vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3,
-            life: 0.25, maxLife: 0.25, color: '#22c55e', size: 3
-          });
+    // Player damage (from enemy AI bots or multiplayer rivals)
+    if ((p.team === 2 || p.isRival) && Math.hypot(p.x - player.x, p.y - player.y) < spec.width * 0.55) {
+      if (isMultiplayerMode && performance.now() < mpInvulnerableUntil) {
+        // Invulnerable on base respawn
+      } else {
+        let dmg = p.damage;
+        // Requirement: Trees provide cover for the tanks
+        if (isTankUnderTreeCover(player.x, player.y)) {
+          dmg *= 0.5;
+          for (let k = 0; k < 4; k++) {
+            particles.push({
+              x: player.x + (Math.random() - 0.5) * 20,
+              y: player.y + (Math.random() - 0.5) * 20,
+              vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3,
+              life: 0.25, maxLife: 0.25, color: '#22c55e', size: 3
+            });
+          }
+        }
+        if (player.cheatMode) dmg = 0;
+        player.health -= dmg;
+        hit = true;
+        sfx.playExplosion(false);
+        createExplosion(p.x, p.y, p.splash);
+        if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+          mpSocket.send(JSON.stringify({
+            type: 'player_hit',
+            damage: dmg,
+            shooterId: p.shooterId || null
+          }));
+        }
+        if (player.health <= 0) {
+          if (isMultiplayerMode) {
+            respawnMultiplayerPlayer();
+          } else {
+            respawnPlayer();
+          }
         }
       }
-      if (player.cheatMode) dmg = 0;
-      player.health -= dmg;
-      hit = true;
-      sfx.playExplosion(false);
-      createExplosion(p.x, p.y, p.splash);
-      if (player.health <= 0) respawnPlayer();
     }
 
-    // Enemy tanks
-    if (p.team === 1) {
+    // Multiplayer Rival Tanks (battling the other player)
+    if (p.team === 1 && isMultiplayerMode && mpRivals) {
+      for (let [rId, rival] of mpRivals.entries()) {
+        const rSpec = TANK_CLASSES[rival.tankClass || 'medium'] || TANK_CLASSES.medium;
+        if (rival.health > 0 && Math.hypot(p.x - rival.x, p.y - rival.y) < rSpec.width * 0.55) {
+          let dmg = p.damage;
+          if (isTankUnderTreeCover(rival.x, rival.y)) dmg *= 0.5;
+          hit = true;
+          sfx.playExplosion(false);
+          createExplosion(p.x, p.y, p.splash);
+          if (mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+            mpSocket.send(JSON.stringify({
+              type: 'player_hit',
+              targetId: rId,
+              damage: dmg
+            }));
+          }
+          break;
+        }
+      }
+    }
+
+    // Enemy tanks (Solo Mode)
+    if (p.team === 1 && !isMultiplayerMode) {
       for (let e of enemyTanks) {
         const eSpec = TANK_CLASSES[e.type];
         if (Math.hypot(p.x - e.x, p.y - e.y) < eSpec.width * 0.55) {
@@ -5498,7 +5553,8 @@ function checkCollision(x, y, r) {
   // 1. Bridges override water! (Tanks require a bridge to cross water!)
   let onBridge = false;
   for (let b of bridges) {
-    if (x >= b.x - 4 && x <= b.x + b.w + 4 && y >= b.y - 2 && y <= b.y + b.h + 2) {
+    // Generous bridge ramp corridor margin (+r + 14px) so tanks can smoothly enter and cross from either bank
+    if (x >= b.x - r - 14 && x <= b.x + b.w + r + 14 && y >= b.y - 12 && y <= b.y + b.h + 12) {
       onBridge = true;
       break;
     }
@@ -6696,6 +6752,16 @@ function renderConsoleRadar() {
     }
   });
 
+  // 5b. Foliage Groves on Radar (ONLY if discovered)
+  radarCtx.fillStyle = 'rgba(21, 128, 61, 0.75)';
+  foliage.forEach(f => {
+    if (isWorldPosDiscovered(f.x, f.y)) {
+      radarCtx.beginPath();
+      radarCtx.arc(f.x * sx, f.y * sy, Math.max(1.8, (f.r || 55) * sx * 0.7), 0, Math.PI * 2);
+      radarCtx.fill();
+    }
+  });
+
   // 6. Roads on Radar (ONLY if discovered)
   radarCtx.fillStyle = 'rgba(180, 83, 9, 0.45)';
   roads.forEach(r => {
@@ -6791,6 +6857,16 @@ function renderConsoleRadar() {
     radarCtx.beginPath();
     radarCtx.arc(incomingMissile.x * sx, incomingMissile.y * sy, Math.max(4, incomingMissile.r * sx), 0, Math.PI * 2);
     radarCtx.stroke();
+  }
+
+  // 12c. Shroud unexplored territory with dark phosphor veil
+  radarCtx.fillStyle = 'rgba(2, 6, 4, 0.96)';
+  for (let cy = 0; cy < radarFogRows; cy++) {
+    for (let cx = 0; cx < radarFogCols; cx++) {
+      if (!radarExploredGrid || radarExploredGrid[cy * radarFogCols + cx] !== 1) {
+        radarCtx.fillRect(cx * cellW, cy * cellH, cellW + 0.6, cellH + 0.6);
+      }
+    }
   }
 
   // 13. Local Player Tank (Bright Cyan Dot with Heading pip)

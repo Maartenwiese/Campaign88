@@ -14,10 +14,85 @@ This document records the complete change management history, architectural evol
 | **v1.2.0** | 2026-10-04 | Networked Multiplayer | 5-Player Real-time Battles, Dynamic Map Scaling (3000x3000 to 5000x4200), Radar Fog of War, Callsign & Game Rooms, Leaderboard |
 | **v1.3.0** | 2026-10-04 | Combat & Tactical Gameplay Adaptations | Road Clearance, Solid Tree Trunks & Canopy Cover (50% Def), POW Camp Gates & Sentries, Incoming Missile Alert (3-5s), Weapon Upgrades, Cheat Mode (`+++`), Chassis Lock, Player Drone Strike |
 | **v1.3.1** | 2026-10-04 | UI/UX & Responsive Layout Stabilization | CSS Syntax Repair, HTML Structure Realignment, Responsive 100vh Desktop Fitting (No Scrollbars), Streamlined Single-Line Footer Controls, Mobile Portrait Briefing Fit, Unobstructed Touch Controls & Toast Stacking |
+| **v1.4.0** | 2026-10-04 | 1v1 Multiplayer Duel & Tactical Realism | 2-Player Cap, Opposing River Bases, 30Hz Real-Time Driving & Attack Synchronization, Bridge Crossing Ramp Margins, Radar Fog of War Discovery Mask, Seeded Procedural Terrain on Every Game Launch, Hidden God Mode UI |
 
 ---
 
 ## Detailed Version Changelog
+
+### [v1.4.0] — 2026-10-04 (1v1 Multiplayer Duel & Tactical Realism)
+**Focus**: 1v1 duel multiplayer capping, opposing river bases, live opponent movement synchronization, bridge traversal physics, progressive radar fog of war reveal, procedural battlefield generation on every game start, and hidden god mode.
+
+#### 1. 2-Player Cap (1v1 Duel Mode)
+- **Room Limit Enforcement**: Configured `MAX_PLAYERS_PER_ROOM = 2` on the WebSocket server (`server.js`) and client (`index.html` / `play/index.html`).
+- **Lobby Roster UI**: Updated the multiplayer setup modal and in-room roster to display exactly 2 slots:
+  - **Slot 0**: Crimson Vanguard (West Base, `#ef4444`).
+  - **Slot 1**: Cobalt Shield (East Base, `#3b82f6`).
+- **Match HUD**: Updated in-match player counter to display `PLAYERS: X/2`. Toast alerts announce `COMMENCE 1v1 DUEL! 2 TANKS ENGAGED!`.
+
+#### 2. Distinct Opposing Bases Across Central River
+- **Base Positioning**: Configured opposing home bases on opposite sides of the central river:
+  - Crimson Base at `x: 340, y: WORLD_H / 2` (Western Shore).
+  - Cobalt Base at `x: WORLD_W - 340, y: WORLD_H / 2` (Eastern Shore).
+- **Spawn Assignment**: Player 1 spawns facing east (`angle: 0`), Player 2 spawns facing west (`angle: Math.PI`).
+- **Respawn Safety**: Destroyed players respawn inside their respective fortified bases with a 4-second invulnerability shield and visual barrier aura.
+
+#### 3. Real-Time Driving & Turret Synchronization (30Hz)
+- **Problem**: Previously, opponent tanks remained stationary because tank position and angle telemetry was not continuously emitted during movement.
+- **Implementation**:
+  - Added a 30Hz transmission loop in `update(dt)`: sends `player_state` with current coordinates (`x, y`), chassis orientation (`angle`), turret orientation (`turretAngle`), health, fuel, and special ability status.
+  - Added server-side relay broadcasting `player_sync` to the opposing combatant.
+  - Client updates rival position, rotates chassis and turret smoothly, and renders continuous dirt tread tracks (`treadMarks`) behind the moving rival tank.
+
+#### 4. Real-Time Attack Synchronization & Hit Detection
+- **Shell Firing Sync**: When either player discharges their main cannon, the client emits `fire_shell` with muzzle coordinates, velocity, projectile damage, and splash radius. The server relays this as `shell_fired` to spawn matching tracer projectiles on the opponent's screen.
+- **Landmine Sync**: Deployed stealth mines are emitted via `lay_mine` and synchronized across both clients as armed hazard objects.
+- **Rival Hit Detection**: Projectiles test collision against the rival tank hull in the physics loop; hits trigger explosions, damage reporting (`player_hit`), and server kill tracking.
+- **Drone Strike Coordination**: Player-commanded drone strikes transmit target coordinates via `drone_strike`, alerting the opponent with air-raid sirens and incoming bomber shadows.
+
+#### 5. Bridge Crossing Fix (Ramp Collision Margins & Extended Corridors)
+- **Problem**: In previous builds, tanks could not cross bridges in multiplayer because circular collision hull detection against the river water boundary evaluated to `true` before the tank's center point reached the bridge rectangle.
+- **Implementation**:
+  - Extended bridge physical width: bridge width set to `riverW + 50 = 210px`, anchored with a 25px overhang into dry terrain on both river banks.
+  - Updated `checkCollision(x, y, r)` with an approach corridor margin:
+    ```javascript
+    if (x >= b.x - r - 14 && x <= b.x + b.w + r + 14 && y >= b.y - 12 && y <= b.y + b.h + 12) {
+      onBridge = true;
+      break;
+    }
+    ```
+  - This guarantees `onBridge` evaluates to `true` well before the tank's boundary touches water, allowing completely smooth, uninterrupted bridge crossings from both sides of the river.
+
+#### 6. Radar Fog of War Shroud & Progressive Discovery
+- **Requirement**: "The radar can only show the already discovered parts of the map. once explored you can see on the radar where and what everything is."
+- **Implementation**:
+  - Implemented 60x60 exploration grid (`radarExploredGrid`) tracking uncovered sectors.
+  - Continuous exploration loop in `update(dt)` calls `discoverRadarArea(player.x, player.y, 450)` during movement, uncovering the map around the driving tank.
+  - Updated `renderConsoleRadar()`:
+    - River, bridges, roads, mountains, foliage, houses, and POW camps are rendered strictly when inside discovered cells.
+    - Added dark phosphor veil (`rgba(2, 6, 4, 0.96)`) masking all unexplored cells on the CRT radar.
+    - Opponent tanks and AI patrol units appear on radar only once their position falls within discovered territory.
+
+#### 7. Seeded Procedural Battlefield Generation on EVERY Game Launch
+- **Requirement**: "Also every time you start the game, a new terain is being generated."
+- **Implementation**:
+  - Created deterministic procedural terrain generator `generateProceduralTerrain(worldW, worldH, seed)` in `server.js` and matching `initWorld(seed)` in `index.html`.
+  - Every game start (Solo Campaign or Multiplayer Match) produces a fresh random seed (`Date.now() ^ Math.random() * 0xffffff`).
+  - Procedurally varies:
+    - Central river meandering offset and width.
+    - 3 unique tactical bridge types (wood, reinforced concrete, pontoon) with varied Y positions.
+    - Highway network paths connecting base camps to bridge ramps.
+    - Mountain clusters and chokepoints.
+    - Civilian cottages, barracks, and dense pine/oak foliage groves with verified road clearance.
+    - Fortified POW camps with barbed wire enclosures and armed sentries.
+  - In multiplayer, the host server generates the terrain layout and broadcasts it to both duelists on match start, ensuring identical battlefield layouts.
+
+#### 8. Hidden God Mode UI
+- **Requirement**: "hide the god mode button."
+- **Implementation**:
+  - Removed `#cheat-mode-badge` from `#footer-controls`.
+  - Added `#cheat-mode-badge, .cheat-mode-badge { display: none !important; }` in CSS.
+  - Secret triple-plus key combination (`+++`) remains active in the background, activating unlimited armor, infinite fuel, and maximum weaponry silently without revealing any god-mode button on the screen.
 
 ### [v1.3.1] — 2026-10-04 (UI/UX & Responsive Layout Stabilization)
 **Focus**: Interface hierarchy repair, CSS cascade stabilization, viewport responsiveness, elimination of window scrolling, and unobstructed mobile portrait controls.
