@@ -13,10 +13,34 @@ This document records the complete change management history, architectural evol
 | **v1.1.5** | 2026-10-03 | Container & Cloud Deployment | Docker Packaging, Artifact Registry, Google Cloud Run Production Deployment |
 | **v1.2.0** | 2026-10-04 | Networked Multiplayer | 5-Player Real-time Battles, Dynamic Map Scaling (3000x3000 to 5000x4200), Radar Fog of War, Callsign & Game Rooms, Leaderboard |
 | **v1.3.0** | 2026-10-04 | Combat & Tactical Gameplay Adaptations | Road Clearance, Solid Tree Trunks & Canopy Cover (50% Def), POW Camp Gates & Sentries, Incoming Missile Alert (3-5s), Weapon Upgrades, Cheat Mode (`+++`), Chassis Lock, Player Drone Strike |
+| **v1.3.1** | 2026-10-04 | UI/UX & Responsive Layout Stabilization | CSS Syntax Repair, HTML Structure Realignment, Responsive 100vh Desktop Fitting (No Scrollbars), Streamlined Single-Line Footer Controls, Mobile Portrait Briefing Fit, Unobstructed Touch Controls & Toast Stacking |
 
 ---
 
 ## Detailed Version Changelog
+
+### [v1.3.1] — 2026-10-04 (UI/UX & Responsive Layout Stabilization)
+**Focus**: Interface hierarchy repair, CSS cascade stabilization, viewport responsiveness, elimination of window scrolling, and unobstructed mobile portrait controls.
+
+#### 1. CSS Syntax & DOM Hierarchy Integrity Repair
+- **Root Cause Diagnoses**:
+  - Found an unclosed CSS brace `}` in rule `#mp-match-hud`, causing all subsequent tactical styles (`.pregame-class-container`, `.drone-strike-btn`, `#missile-alert-box`, `.cheat-mode-badge`, `.weapon-upgrade-pill`) to fail or corrupt the stylesheet cascade.
+  - Found an omitted opening `<div id="m-buttons-cluster">` in the mobile action cluster markup, causing its closing `</div>` to prematurely terminate `#mobile-controls-overlay`, `#viewport-wrapper`, and `#arcade-chassis`, kicking the right `#steel-console` out below the main game window on desktop.
+- **Fixes Applied**:
+  - Balanced all CSS selector blocks; verified brace depth at exactly 0.
+  - Restored full DOM hierarchy and verified HTML tag opening/closing balance at 0 unclosed tags and 0 errors.
+
+#### 2. Desktop Console Viewport & Single-Line Footer Bar
+- **Responsiveness**: Replaced fixed 820px chassis height with `height: min(800px, calc(100vh - 68px)); min-height: 520px;`, allowing the entire arcade chassis to scale dynamically to laptop and desktop screens (800p, 900p, 1080p, 1440p) without any vertical page scrolling.
+- **Console Balancing**: Refined `#steel-console` with flex `justify-content: space-between;` and compact padding, keeping gauges, LED readouts, and the CRT radar scanner crisp.
+- **Single-Line Footer**: Refactored `#footer-controls` with concise keybinding hints (`WASD`, `Mouse`, `M`, `Shift`, `1-3`) and compact action buttons (`🎯 DRONE [X]`, `🌐 MULTI`, `📱 MOBILE`, `⛶ FULL`, `AUDIO`), ensuring a unified single-line bottom bar without line wrapping.
+
+#### 3. Mobile Fullscreen Portrait Interface Polish
+- **Automatic Route & Viewport Detection**: Updated `detectMobileDevice()` to automatically activate mobile portrait mode on `/play`, coarse touch pointers, and narrow screen viewports (<= 768px).
+- **Briefing Modal Sizing**: Redesigned pre-game tank chassis buttons (`.retro-class-select-btn`) to fit side-by-side on a single row, and scaled start buttons so that both Solo Campaign and Online Multiplayer options fit inside the phone screen without requiring modal scrolling.
+- **Toast & Hazard Stacking**: Moved `#toast-msg`, `#air-raid-alert`, and `#missile-alert-box` to `top: calc(env(safe-area-inset-top, 0px) + 84px);` on the left side of the screen, perfectly adjacent to the floating radar widget. This leaves the virtual analog joystick and bottom-right button cluster completely clear and accessible.
+
+---
 
 ### [v1.3.0] — 2026-10-04 (Combat & Tactical Gameplay Adaptations)
 **Focus**: Tactical battlefield refinements, obstacle placement safety, defensive cover mechanics, weapon upgrades, cheat system, and player-commanded airstrikes.
