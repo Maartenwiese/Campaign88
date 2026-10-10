@@ -17,10 +17,75 @@ This document records the complete change management history, architectural evol
 | **v1.4.0** | 2026-10-04 | 1v1 Multiplayer Duel & Tactical Realism | 2-Player Cap, Opposing River Bases, 30Hz Real-Time Driving & Attack Synchronization, Bridge Crossing Ramp Margins, Radar Fog of War Discovery Mask, Seeded Procedural Terrain on Every Game Launch, Hidden God Mode UI |
 | **v1.4.1** | 2026-10-10 | Procedural Complexity & Hidden Objective Specifications | Specs.md PRD Expansion, Heightened Mountain Ranges & Defiles, Tributary Lakes & River Coves, Dynamic Concealed Opponent Flag Placement, Fog of War Flag Discovery Blip |
 | **v1.4.2** | 2026-10-10 | Teamwork Multi-Agent Verification & Hardening | Automated Level Generation Test Suite (`verify_level_gen.js`), Zero Road Clearance Violations (`20px`), Bridge Ramp Safety, Non-Finite Seed Robustness, Multiplayer Flag & POW WebSocket Relays, Victory Audit Confirmed |
+| **v1.5.0** | 2026-10-10 | Single-Player Operation Campaign | 3-Stage Linear Campaign, Field Armory Depot, Salvage Warbonds ($WB), 2-Phase Titan Behemoth Boss, 3 Reinforcement Lives, Retro Intercom HUD, Automated Campaign Verification Harness |
 
 ---
 
 ## Detailed Version Changelog
+
+### [v1.5.0] — 2026-10-10 (Single-Player Operation Campaign & Titan Behemoth Boss)
+**Focus**: Delivering an immersive, high-stakes 3-stage single-player military operation featuring an escalating objective structure, intermediate Field Armory Depot upgrade terminal using Salvage Warbonds, a climactic 2-phase Titan Behemoth boss battle, CRT intercom military broadcasts, and checkpoint lives management.
+
+#### 1. 3-Stage Linear Operation Campaign Architecture
+- **Stage 1 (Border River Recon & POW Rescue)**:
+  - Tactical Objective: Safely infiltrate enemy territory across the river, liberate fortified camps, and extract $\ge 6$ Allied POWs back to base garage.
+  - Tactical Bounty Target: Enemy Radar Outpost ($500 HP, +$300 Warbonds bonus). Rotating radar mesh, concrete bastion.
+  - Reward: +$500 Stage Completion Bonus upon rescuing $\ge 6$ POWs + auto-opening of the Field Armory Depot.
+- **Stage 2 (Mountain Pass Infiltration & Flag Extraction)**:
+  - Tactical Objective: Navigate craggy mountain defiles and enemy patrols to discover and extract the concealed hostile Cipher Flag.
+  - Tactical Bounty Target: Armored Fuel Convoy Tanker ($700 HP, +$400 Warbonds bonus).
+  - Reward: +$600 Stage Completion Bonus upon returning the flag to base garage + access to Field Armory Depot before final siege.
+- **Stage 3 (Citadel Siege & Climax Boss)**:
+  - Tactical Objective: Infiltrate the heavily fortified enemy Citadel sector and eliminate the hostile super-weapon: the **Titan Behemoth**.
+  - Climax Boss Fight with real-time health bar, phase tracking, and cinematic multi-stage destruction explosions leading to Theater Victory.
+
+#### 2. Field Armory Depot & Salvage Warbonds Economy ($WB)
+- **Currency System**: Earn Salvage Warbonds ($WB) from rescuing POWs (+$50/POW), destroying tactical bounty targets (+$300-$400), and stage victory rewards (+$500-$600).
+- **Armory Terminal Modal (`#armory-depot-modal`)**:
+  - Accessible between stages and when entering the base garage.
+  - **Reinforced Hull**: +50 Max HP per tier (Tiers 1-2, $350 / $600 WB). Instantly raises max health and applies live HP scaling.
+  - **Twin-Barrel Cannon**: Fires dual parallel armor-piercing shells offset by $\pm 5$px for 2x devastating firepower ($500 WB). Fully animated twin barrels and muzzle brakes on tank model.
+  - **High-Torque Turbo Engine**: +20% move speed and +20% hull turn rate per tier (Tiers 1-2, $300 / $500 WB).
+  - **Drone Avionics Upgrade**: Halves tactical drone strike cooldown from 60 seconds to 30 seconds ($400 WB).
+  - **Reserve Chassis**: Adds +1 reinforcement deployment life to squad pool ($250 WB).
+
+#### 3. Titan Behemoth Super-Tank Boss Mechanics
+- **Physical Specifications**: Massive 96×68 px quad-tread super-tank, 1500 HP, independent 360° rotating super-turret.
+- **Phase 1 (Armored Bulwark)**:
+  - Heavy twin high-caliber cannons firing alternating dual rounds every 2.4s (35 DMG each).
+  - Frontal Sloped Glacis Armor: Deflects 50% of incoming direct shell damage when hit in the frontal $\pm 60^\circ$ arc.
+- **Phase 2 (Enraged Flanking Duel — $\le 50\%$ HP)**:
+  - Enrage transition triggered at $\le 750$ HP with warning klaxon. Fire rate increases to 1.6s.
+  - Tactical Missile Barrages: Fires clusters of 4 high-explosive seeker missiles every 4.5s towards player position.
+  - Exposed Rear Radiator Weakspot: Armored heat shield opens at the rear exhaust; hits from tactical flanking ($> 120^\circ$ relative angle) inflict **3.0× Critical Damage** accompanied by distinct auditory feedback.
+- **Chain Detonation**: Upon defeat, triggers a 6-stage chain reaction of seismic explosions followed by the Campaign Victory debriefing modal.
+
+#### 4. Military CRT Intercom HUD & Synthesized Audio
+- **CRT Intercom Banner (`#intercom-banner`)**: Retro amber/green phosphor overlay displaying priority military broadcasts, timestamp, and callsign.
+- **Synthesized Web Audio Methods (`Campaign88Audio`)**:
+  - `playRadioBeep()`: Realistic military VHF comms static chirps.
+  - `playCriticalHit()`: High-impact metallic resonance for boss rear weakspot punctures.
+  - `playBossWarning()`: Descending double-buzz emergency klaxon for Phase 2 enrage transitions.
+
+#### 5. Reinforcement Lives & Checkpoint Respawn System
+- **Squad Reserve Lives**: Players start with 3 deployment lives (expandable via Armory Depot).
+- **Tactical Checkpoint**: Tank destruction decrements reserves and dispatches a replacement chassis to base.
+- **Mission Failure Modal (`#mission-failed-modal`)**: If all reserves are expended, players can retry the current stage from its checkpoint with retained upgrades or abort to the main menu.
+
+#### 6. Unified 3-Button Game Selector & Mobile/Desktop HUD
+- **Briefing Screen (`#intro-screen`)**: Unified 3-button selector:
+  - `[★ OPERATION CAMPAIGN]`: Launches 3-stage narrative campaign.
+  - `[⚔️ SKIRMISH ARENA]`: Launches classic instant procedural skirmish.
+  - `[🌐 1v1 MULTIPLAYER]`: Opens online duel lobby.
+- **Desktop Steel Console**: Dedicated Campaign Box with Stage indicator, Warbonds readout, and gold stars for remaining lives.
+- **Mobile HUD**: Compact `#m-campaign-stat` top badge displaying stage and warbond balance.
+- **Boss HUD (`#titan-boss-hud`)**: Real-time HP bar and phase indicator.
+
+#### 7. Automated Campaign Verification Harness
+- Created `verify_campaign.js` checking all DOM modals, JavaScript routines, and file synchronization.
+- Updated `package.json` so `npm test` executes both `verify_level_gen.js` and `verify_campaign.js`.
+
+---
 
 ### [v1.4.2] — 2026-10-10 (Teamwork Multi-Agent Verification & Hardening)
 **Focus**: Multi-agent adversarial hardening of the procedural generation engine, implementation of the automated verification harness `verify_level_gen.js`, strict 20px road clearance enforcement, and enriched multiplayer WebSocket relays.

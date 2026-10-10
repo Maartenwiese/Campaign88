@@ -4,10 +4,10 @@ Project Fire Power: Legacy (Modern Retro Revival)
 Metadata Attribute	Enterprise Specification
 Document ID	PRD-FPL-2026-10
 Project Codename	Fire Power: Legacy
-Document Version	1.1.0-Draft
+Document Version	1.2.0
 Last Updated	2026-10-10
 Target Launch	Q3 2027
-Status	In Review
+Status	Approved / Implemented
 Author	MaartenW
 Target Platform	PC (Steam, GOG, WebGL / Modern Browsers)
  
@@ -44,7 +44,7 @@ Heavy Tank	High (400 HP)	Slow (65%)	16 (Max)	Siege Mode: Anchor in place to doub
 Classic Game Loop: Complete reproduction of CTF mechanics (grabbing the flag, returning it to home base), POW cell destruction, soldier rescue, and First Aid tent mechanics.
 
 Procedural Level & Complex Terrain Re-Generation (Every Game Launch):
-- **Per-Game Procedural Re-Generation**: Battlefield levels must be completely procedurally re-generated on every single game launch (both Solo Skirmish and Online Multiplayer). No two matches share the same geography or layout.
+- **Per-Game Procedural Re-Generation**: Battlefield levels must be completely procedurally re-generated on every single game launch (both Solo Skirmish, Operation Campaign, and Online Multiplayer). No two matches share the same geography or layout.
 - **Complex Terrain & Natural Barriers**:
   - **Dynamic Rivers & Waterways**: Deep meandering watercourses and river channels acting as impassable barriers that divide the map into distinct operational theaters.
   - **Strategic Bridge Chokepoints**: Multiple tactical bridges (timber, reinforced concrete, pontoon) spanning waterways, serving as high-stakes crossing corridors and ambush points.
@@ -57,6 +57,36 @@ Dynamic & Well-Hidden Opponent Flag Placement:
 - **Non-Static Flag Spawns**: The opponent's flag must never spawn in a predictable, static location.
 - **Deeply Concealed Positions**: Each procedural generation must place the enemy flag in a distinct, well-hidden, and tactically challenging location (e.g., secluded mountain defiles, deep behind dense forest canopies, or tucked within fortified defensive compounds).
 - **Reconnaissance & Fog of War Integration**: Players must actively scout the battlefield and penetrate the radar fog of war to locate the opponent's flag, eliminating blind-rush tactics and rewarding tactical reconnaissance.
+
+Single-Player Operation Campaign & Stage Progression:
+- **Unified Mode Selector**: Briefing interface provides three distinct game experiences:
+  1. `[OPERATION CAMPAIGN]`: Multi-stage tactical operation with persistent Armory Depot and climax Titan Boss.
+  2. `[SKIRMISH ARENA]`: Instant procedural single-match quickplay.
+  3. `[1v1 MULTIPLAYER DUEL]`: Real-time online competitive combat.
+- **Linear 3-Stage Operation Structure**:
+  - **Stage 1 (Border River Recon & POW Rescue)**:
+    - *Primary Objective*: Infiltrate enemy sectors across bridges and rescue at least 6 POWs, escorting them to the base.
+    - *Optional Bounty*: Neutralize enemy radar outpost for +300 bonus Salvage Warbonds.
+  - **Stage 2 (Mountain Pass Infiltration & Flag Extraction)**:
+    - *Primary Objective*: Penetrate craggy mountain canyons under heavy patrol fire, locate the deeply concealed enemy flag under radar fog, and return it across the river.
+    - *Optional Bounty*: Ambush the enemy fuel convoy for +400 bonus Salvage Warbonds.
+  - **Stage 3 (Fortress Siege & Titan Behemoth Boss)**:
+    - *Primary Objective*: Breach the fortified Citadel perimeter walls, neutralize defense turrets, and eliminate the Titan Behemoth super-tank.
+- **Titan Behemoth Boss Encounter**:
+  - *Phase 1 (100% - 50% HP)*: Twin high-velocity main cannons with heavy frontal deflection armor (reduced frontal damage).
+  - *Phase 2 (< 50% HP)*: Enrage mode with elevated chassis speed, incoming missile salvos, and an exposed rear glowing exhaust port vulnerable to **3x critical flanking damage**.
+- **Field Armory Depot & Salvage Economy**:
+  - Earn "Salvage Warbonds" from combat destructions, POW rescues, and completed bounties.
+  - Between stages (and at base), purchase upgrades:
+    1. *Reinforced Hull*: +25% Max HP and damage mitigation.
+    2. *Twin-Barrel Autocannon*: Twin simultaneous shell volley with increased projectile speed.
+    3. *High-Torque Turbo Engine*: +20% top speed and faster track turning.
+    4. *Advanced Drone Avionics*: Drone strike recharge reduced from 60s to 30s.
+    5. *Reserve Tank Requisition*: +1 Reserve Life.
+- **Deployment Reserves & Checkpoints**:
+  - 3 initial tank lives per campaign. Destroyed tanks redeploy at forward base. Mission failure allows stage checkpoint retries.
+- **Retro CRT Military Intercom HUD**:
+  - Radio transmission banners at stage entry, objective updates, and Titan Boss sirens with synthesized radio-beeps.
 
 Basic Destruction Engine: Fully destructible perimeter walls, gates, and civilian structures with satisfying pixelated explosion animations.
 
@@ -76,7 +106,7 @@ In-Game Level Editor: Interactive tile-based map builder supporting base assembl
 🔴 Non-Goals (Out of Scope)
 3D Perspective Camera: The game will strictly remain a flat, top-down 2D camera. No first-person or over-the-shoulder third-person modes will be developed.
 
-Single-Player Story Campaign: Narrative-driven missions are out of scope. AI bots will be built solely for offline practice/skirmish play.
+Fully Rendered 3D Cinematic Cutscenes: Pre-rendered or 3D video cutscenes are out of scope; all narrative delivery is strictly retro 2D CRT radio intercom banners and audio-beeps.
 
 7. Core User Interface & Experience (UI/UX)
 +-----------------------------------------------------------+

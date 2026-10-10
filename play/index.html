@@ -1631,6 +1631,417 @@
     padding: 2px 8px;
     border-radius: 3px;
   }
+
+  /* =========================================================================
+     CAMPAIGN MODE: INTERCOM BANNER, BOSS HUD & FIELD ARMORY DEPOT STYLING
+     ========================================================================= */
+
+  /* Unified Mission Selector Button Highlights */
+  .campaign-btn-highlight {
+    background: linear-gradient(180deg, #d97706 0%, #b45309 50%, #78350f 100%) !important;
+    border-color: #fcd34d !important;
+    color: #fef08a !important;
+    box-shadow: 0 0 16px rgba(245, 158, 11, 0.6), 0 0 4px #fff !important;
+    animation: campaignStartPulse 1.2s infinite alternate ease-in-out !important;
+  }
+  .campaign-btn-highlight:hover {
+    background: linear-gradient(180deg, #f59e0b 0%, #d97706 50%, #b45309 100%) !important;
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.95), 0 0 8px #fff !important;
+  }
+  @keyframes campaignStartPulse {
+    0% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.5), 0 0 2px #fff; border-color: #fbbf24; }
+    100% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.9), 0 0 8px #fff; border-color: #fef08a; }
+  }
+  .skirmish-btn-style {
+    background: linear-gradient(180deg, #15803d 0%, #166534 50%, #14532d 100%) !important;
+    border-color: #4ade80 !important;
+    color: #dcfce7 !important;
+  }
+
+  /* Retro CRT Military Intercom Banner */
+  #intercom-banner {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 660px;
+    background: rgba(8, 20, 12, 0.96);
+    border: 2px solid #22c55e;
+    border-radius: 4px;
+    padding: 8px 14px;
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.45), inset 0 0 10px rgba(34, 197, 94, 0.2);
+    z-index: 42;
+    pointer-events: none;
+    font-family: 'Share Tech Mono', monospace;
+    transition: opacity 0.3s ease;
+  }
+  .intercom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #86efac;
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid rgba(34, 197, 94, 0.35);
+    padding-bottom: 3px;
+    margin-bottom: 4px;
+  }
+  .intercom-pip {
+    color: #ef4444;
+    font-weight: bold;
+    animation: recBlink 0.8s infinite alternate;
+  }
+  @keyframes recBlink { from { opacity: 0.3; } to { opacity: 1; } }
+  .intercom-message {
+    font-family: 'VT323', monospace;
+    font-size: 1.35rem;
+    color: #4ade80;
+    letter-spacing: 1.5px;
+    line-height: 1.25;
+    text-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+  }
+
+  /* Titan Behemoth Boss Health Bar HUD */
+  #titan-boss-hud {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 620px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid #ef4444;
+    border-radius: 4px;
+    padding: 6px 12px;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.2);
+    z-index: 41;
+    pointer-events: none;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .boss-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    color: #f87171;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .boss-bar-track {
+    width: 100%;
+    height: 14px;
+    background: #090d16;
+    border: 1px solid #475569;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .boss-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #b91c1c, #ef4444);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+    transition: width 0.15s ease-out;
+  }
+
+  /* Full Screen Overlay Modals */
+  .full-screen-modal {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    background: rgba(10, 15, 23, 0.92);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Field Armory Depot Modal */
+  .armory-terminal {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 3px solid #f59e0b;
+    border-radius: 6px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(245, 158, 11, 0.3);
+    width: 100%;
+    max-width: 760px;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #e2e8f0;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .armory-header {
+    text-align: center;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+  .armory-badge {
+    display: inline-block;
+    background: #78350f;
+    color: #fef08a;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    border: 1px solid #d97706;
+    margin-bottom: 4px;
+  }
+  .armory-title {
+    font-family: 'VT323', monospace;
+    font-size: 2.2rem;
+    color: #fbbf24;
+    letter-spacing: 3px;
+    margin: 0;
+    text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+  }
+  .armory-sub {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+  }
+  .armory-balance-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #090d16;
+    border: 1px solid #78350f;
+    border-radius: 4px;
+    padding: 6px 14px;
+    margin-top: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    color: #cbd5e1;
+  }
+  .warbonds-glow {
+    color: #fde047;
+    font-size: 1.6rem;
+    margin-left: 6px;
+    text-shadow: 0 0 8px rgba(253, 224, 71, 0.6);
+  }
+  .lives-glow {
+    color: #4ade80;
+    font-size: 1.4rem;
+    margin-left: 6px;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+  }
+  .armory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .depot-card {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    transition: border-color 0.15s ease;
+  }
+  .depot-card:hover {
+    border-color: #f59e0b;
+  }
+  .depot-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .depot-icon {
+    font-size: 1.6rem;
+  }
+  .depot-card-title {
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    color: #f8fafc;
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+  .depot-card-sub {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    line-height: 1.2;
+    margin-top: 2px;
+  }
+  .depot-card-tier {
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    color: #38bdf8;
+    letter-spacing: 1px;
+    background: #090d16;
+    padding: 2px 6px;
+    border-radius: 2px;
+    text-align: center;
+  }
+  .depot-buy-btn {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid #f59e0b;
+    color: #fbbf24;
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+    padding: 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .depot-buy-btn:hover:not(:disabled) {
+    background: #f59e0b;
+    color: #000;
+    font-weight: bold;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+  }
+  .depot-buy-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #475569;
+    color: #64748b;
+  }
+  .armory-actions {
+    display: flex;
+    justify-content: center;
+  }
+  .armory-deploy-btn {
+    background: linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+    border: 2px solid #86efac;
+    color: #fff;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    padding: 10px 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.6);
+  }
+  .armory-deploy-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.9);
+  }
+
+  /* Failed & Victory Modals */
+  .failed-box, .victory-box {
+    background: linear-gradient(180deg, #1e1b24 0%, #0f0d14 100%);
+    border: 3px solid #ef4444;
+    border-radius: 6px;
+    box-shadow: 0 0 45px rgba(239, 68, 68, 0.5);
+    width: 100%;
+    max-width: 580px;
+    padding: 24px;
+    text-align: center;
+    color: #e2e8f0;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .failed-badge {
+    display: inline-block;
+    background: #7f1d1d;
+    color: #fecaca;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    border: 1px solid #ef4444;
+    margin-bottom: 6px;
+  }
+  .failed-title {
+    font-family: 'VT323', monospace;
+    font-size: 2.8rem;
+    color: #ef4444;
+    letter-spacing: 3px;
+    margin: 0 0 8px 0;
+    text-shadow: 0 0 16px rgba(239, 68, 68, 0.8);
+  }
+  .failed-desc {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+  .failed-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .failed-btn {
+    font-family: 'VT323', monospace;
+    font-size: 1.35rem;
+    letter-spacing: 1.5px;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .retry-btn {
+    background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+    border: 2px solid #60a5fa;
+    color: #fff;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+  }
+  .retry-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.9);
+  }
+  .abort-btn {
+    background: #1e293b;
+    border: 1px solid #475569;
+    color: #94a3b8;
+  }
+  .abort-btn:hover {
+    background: #334155;
+    color: #fff;
+  }
+  .victory-box {
+    border-color: #fbbf24;
+    box-shadow: 0 0 45px rgba(251, 191, 36, 0.5);
+  }
+  .victory-medal {
+    font-size: 3.2rem;
+    margin-bottom: 4px;
+  }
+  .victory-badge {
+    display: inline-block;
+    background: #78350f;
+    color: #fef08a;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 2px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    border: 1px solid #f59e0b;
+    margin-bottom: 6px;
+  }
+  .victory-title {
+    font-family: 'VT323', monospace;
+    font-size: 2.8rem;
+    color: #fbbf24;
+    letter-spacing: 3px;
+    margin: 0 0 12px 0;
+    text-shadow: 0 0 16px rgba(251, 191, 36, 0.8);
+  }
+  .victory-stats-grid {
+    background: #090d16;
+    border: 1px solid #334155;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    text-align: left;
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+  }
 </style>
 </head>
 <body>
@@ -1709,17 +2120,168 @@
           </div>
         </div>
 
-        <!-- Start Buttons: Solo Campaign & Online Multiplayer -->
-        <div style="margin-top: 6px; width:100%; display:flex; justify-content:center; gap: 12px; flex-wrap: wrap;">
-          <button id="start-btn" class="retro-start-btn" onclick="startGame()">
-            ▶ SOLO CAMPAIGN
-            <span class="btn-subhint">[ AMIGA 1987 BATTLEFIELD ]</span>
+        <!-- Start Buttons: Unified Mode Selector: Operation Campaign, Skirmish Arena, Online Multiplayer -->
+        <div style="margin-top: 6px; width:100%; display:flex; justify-content:center; gap: 10px; flex-wrap: wrap;">
+          <button id="start-campaign-btn" class="retro-start-btn campaign-btn-highlight" onclick="startOperationCampaign()">
+            ★ OPERATION CAMPAIGN
+            <span class="btn-subhint">[ 3-STAGE OPERATION // DEPOT // TITAN BOSS ]</span>
+          </button>
+          <button id="start-btn" class="retro-start-btn skirmish-btn-style" onclick="startGame()">
+            ⚔️ SKIRMISH ARENA
+            <span class="btn-subhint">[ INSTANT PROCEDURAL MATCH ]</span>
           </button>
           <button id="start-mp-btn" class="retro-start-btn mp-btn-accent" onclick="openMultiplayerModal()">
-            🌐 ONLINE MULTIPLAYER
-            <span class="btn-subhint">[ MAX 5 PLAYERS // DYNAMIC MAP ]</span>
+            🌐 1v1 MULTIPLAYER
+            <span class="btn-subhint">[ ONLINE 1v1 DUEL // DUAL BASES ]</span>
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- RETRO CRT MILITARY INTERCOM BANNER -->
+    <div id="intercom-banner">
+      <div class="intercom-header">
+        <span class="intercom-pip">● REC</span>
+        <span class="intercom-callsign" id="intercom-callsign">HQ COMMAND FREQUENCY // PRIORITY 1</span>
+        <span class="intercom-timestamp" id="intercom-timestamp">00:00:00</span>
+      </div>
+      <div class="intercom-message" id="intercom-message">
+        COMMAND: Operation Campaign Initialized. Secure river crossings, rescue 6 POWs, and destroy enemy radar outpost.
+      </div>
+    </div>
+
+    <!-- TITAN BEHEMOTH BOSS HEALTH BAR HUD -->
+    <div id="titan-boss-hud">
+      <div class="boss-title-row">
+        <span>⚠️ ENEMY SUPER-TANK: TITAN BEHEMOTH</span>
+        <span id="boss-phase-badge" style="color:#94a3b8;">PHASE 1: ARMORED</span>
+      </div>
+      <div class="boss-bar-track">
+        <div class="boss-bar-fill" id="boss-hp-fill" style="width: 100%;"></div>
+      </div>
+    </div>
+
+    <!-- FIELD ARMORY DEPOT MODAL -->
+    <div id="armory-depot-modal" style="display:none;" class="full-screen-modal">
+      <div class="armory-terminal">
+        <div class="armory-header">
+          <div class="armory-badge">LOGISTICS & FORWARD ORDNANCE DEPOT</div>
+          <h2 class="armory-title">FIELD ARMORY DEPOT</h2>
+          <div class="armory-sub">RE-ARM & UPGRADE TANK CHASSIS BEFORE NEXT ASSAULT</div>
+          <div class="armory-balance-bar">
+            <div>SALVAGE WARBONDS: <strong id="depot-warbonds-val" class="warbonds-glow">$0</strong></div>
+            <div>RESERVE LIVES: <strong id="depot-lives-val" class="lives-glow">★★★ (3)</strong></div>
+          </div>
+        </div>
+
+        <!-- Upgrade Cards Grid -->
+        <div class="armory-grid">
+          <!-- 1. Reinforced Hull -->
+          <div class="depot-card">
+            <div class="depot-card-header">
+              <span class="depot-icon">🛡️</span>
+              <div>
+                <div class="depot-card-title">REINFORCED HULL</div>
+                <div class="depot-card-sub">+50 Max HP & Armor Plating</div>
+              </div>
+            </div>
+            <div class="depot-card-tier" id="tier-hull-label">TIER: 0 / 2</div>
+            <button class="depot-buy-btn" id="buy-hull-btn" onclick="buyDepotUpgrade('hull')">UPGRADE ($300 WB)</button>
+          </div>
+
+          <!-- 2. Twin-Barrel Cannon -->
+          <div class="depot-card">
+            <div class="depot-card-header">
+              <span class="depot-icon">⚔️</span>
+              <div>
+                <div class="depot-card-title">TWIN-BARREL CANNON</div>
+                <div class="depot-card-sub">Parallel Twin Shell Discharge</div>
+              </div>
+            </div>
+            <div class="depot-card-tier" id="tier-cannon-label">STATUS: NOT EQUIPPED</div>
+            <button class="depot-buy-btn" id="buy-cannon-btn" onclick="buyDepotUpgrade('cannon')">EQUIP ($500 WB)</button>
+          </div>
+
+          <!-- 3. Turbo Engine -->
+          <div class="depot-card">
+            <div class="depot-card-header">
+              <span class="depot-icon">⚡</span>
+              <div>
+                <div class="depot-card-title">HIGH-TORQUE ENGINE</div>
+                <div class="depot-card-sub">+20% Top Speed & Turning</div>
+              </div>
+            </div>
+            <div class="depot-card-tier" id="tier-engine-label">TIER: 0 / 2</div>
+            <button class="depot-buy-btn" id="buy-engine-btn" onclick="buyDepotUpgrade('engine')">UPGRADE ($350 WB)</button>
+          </div>
+
+          <!-- 4. Drone Avionics -->
+          <div class="depot-card">
+            <div class="depot-card-header">
+              <span class="depot-icon">🎯</span>
+              <div>
+                <div class="depot-card-title">DRONE AVIONICS</div>
+                <div class="depot-card-sub">-50% Strike Cooldown (60s -> 30s)</div>
+              </div>
+            </div>
+            <div class="depot-card-tier" id="tier-drone-label">STATUS: STANDARD (60s)</div>
+            <button class="depot-buy-btn" id="buy-drone-btn" onclick="buyDepotUpgrade('drone')">UPGRADE ($400 WB)</button>
+          </div>
+
+          <!-- 5. Reserve Tank Requisition -->
+          <div class="depot-card">
+            <div class="depot-card-header">
+              <span class="depot-icon">🚜</span>
+              <div>
+                <div class="depot-card-title">RESERVE CHASSIS</div>
+                <div class="depot-card-sub">+1 Reinforcement Deployment Life</div>
+              </div>
+            </div>
+            <div class="depot-card-tier" id="tier-reserve-label">CURRENT RESERVES: 3</div>
+            <button class="depot-buy-btn" id="buy-life-btn" onclick="buyDepotUpgrade('life')">PURCHASE ($300 WB)</button>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="armory-actions">
+          <button class="armory-deploy-btn" id="depot-deploy-btn" onclick="deployNextStage()">
+            ▶ DEPLOY TO NEXT STAGE
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MISSION FAILED MODAL -->
+    <div id="mission-failed-modal" style="display:none;" class="full-screen-modal">
+      <div class="failed-box">
+        <div class="failed-badge">SQUAD COMBAT INEFFECTIVE</div>
+        <h1 class="failed-title">MISSION FAILED</h1>
+        <p class="failed-desc" id="failed-desc-text">ALL REINFORCEMENT CHASSIS DESTROYED IN COMBAT.</p>
+        <div class="failed-actions">
+          <button class="failed-btn retry-btn" onclick="retryStageFromCheckpoint()">🔄 RETRY STAGE FROM CHECKPOINT</button>
+          <button class="failed-btn abort-btn" onclick="abortCampaignToMenu()">✕ ABORT TO OPERATION BRIEFING</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGN VICTORY COMMENDATION MODAL -->
+    <div id="campaign-victory-modal" style="display:none;" class="full-screen-modal">
+      <div class="victory-box">
+        <div class="victory-medal">🎖️</div>
+        <div class="victory-badge">THEATER LIBERATED // OPERATION COMPLETE</div>
+        <h1 class="victory-title">VICTORY ACHIEVED!</h1>
+        <p style="color:#dcfce7; margin-bottom:12px; font-size:1.05rem;">
+          The enemy Citadel has been breached and the Titan Behemoth super-tank has been permanently neutralized!
+        </p>
+        <div class="victory-stats-grid" id="victory-stats-content">
+          <div>FINAL SCORE: <strong id="vic-score" style="color:#fde047;">0000</strong></div>
+          <div>WARBONDS BANKED: <strong id="vic-warbonds" style="color:#4ade80;">$0000</strong></div>
+          <div>POWs RESCUED: <strong id="vic-pows" style="color:#38bdf8;">00</strong></div>
+          <div>COMMENDATION: <strong style="color:#f59e0b;">MEDAL OF HONOR</strong></div>
+        </div>
+        <button class="armory-deploy-btn" onclick="abortCampaignToMenu()" style="margin-top:10px;">
+          ★ RETURN TO COMMAND HEADQUARTERS
+        </button>
       </div>
     </div>
 
@@ -1912,6 +2474,10 @@
           <span class="m-stat-lbl">MINE</span>
           <span class="m-stat-val" id="m-mines-digits">05</span>
         </div>
+        <div class="m-hud-stat" id="m-campaign-stat" style="display:none;">
+          <span class="m-stat-lbl" id="m-stage-lbl">STG:1</span>
+          <span class="m-stat-val" id="m-warbonds-digits" style="font-size:1.1rem; color:#fde047;">$0</span>
+        </div>
         <div class="m-hud-actions">
           <button class="m-hud-btn" id="m-btn-sound" title="Toggle Sound">🔊</button>
           <button class="m-hud-btn" id="m-btn-fs" title="Fullscreen">⛶</button>
@@ -2031,6 +2597,24 @@
     <div class="title-plaque">
       <h2>CAMPAIGN 88</h2>
       <div class="sub">1987 TOP-DOWN TANK WARFARE</div>
+    </div>
+
+    <!-- CAMPAIGN STATUS BOX (Active in Operation Campaign) -->
+    <div class="console-box" id="campaign-console-box" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="box-label" style="font-size:0.95rem; color:#f59e0b;">OPERATION</span>
+        <span style="font-size:0.8rem; color:#38bdf8;" id="campaign-stage-badge">STAGE 1/3</span>
+      </div>
+      <div class="box-display" style="padding:2px 8px; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="font-size:0.7rem; color:#94a3b8;">BONDS:</span>
+          <span class="led-digits" id="campaign-warbonds-digits" style="font-size:1.15rem; color:#fde047;">$0000</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="font-size:0.7rem; color:#94a3b8;">LIVES:</span>
+          <span class="led-digits" id="campaign-lives-digits" style="font-size:1.15rem; color:#4ade80;">★★★</span>
+        </div>
+      </div>
     </div>
 
     <!-- 1. SCORE READOUT (fp1 & fp2) -->
@@ -2254,6 +2838,55 @@ class Campaign88Audio {
       osc.start(now + i * 0.12);
       osc.stop(now + i * 0.12 + 0.2);
     });
+  }
+  playRadioBeep() {
+    if (!this.enabled || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    [1200, 1600].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.05);
+      gain.gain.setValueAtTime(0.2, now + idx * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.05 + 0.04);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + idx * 0.05);
+      osc.stop(now + idx * 0.05 + 0.04);
+    });
+  }
+  playCriticalHit() {
+    if (!this.enabled || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(800, now);
+    osc.frequency.exponentialRampToValueAtTime(200, now + 0.25);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.25);
+  }
+  playBossWarning() {
+    if (!this.enabled || !this.ctx) return;
+    const now = this.ctx.currentTime;
+    for (let k = 0; k < 3; k++) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(500, now + k * 0.3);
+      osc.frequency.linearRampToValueAtTime(900, now + k * 0.3 + 0.15);
+      osc.frequency.linearRampToValueAtTime(500, now + k * 0.3 + 0.28);
+      gain.gain.setValueAtTime(0.3, now + k * 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + k * 0.3 + 0.28);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now + k * 0.3);
+      osc.stop(now + k * 0.3 + 0.28);
+    }
   }
 }
 const sfx = new Campaign88Audio();
@@ -2554,6 +3187,17 @@ function startGame(silent = false) {
   tankClassLocked = true;
   selectClass(preGameSelectedClass, true);
 
+  if (!campaignState.active) {
+    bountyTarget = null;
+    titanBoss = null;
+    const campBox = document.getElementById('campaign-console-box');
+    if (campBox) campBox.style.display = 'none';
+    const mCamp = document.getElementById('m-campaign-stat');
+    if (mCamp) mCamp.style.display = 'none';
+    const bHud = document.getElementById('titan-boss-hud');
+    if (bHud) bHud.style.display = 'none';
+  }
+
   // Requirement: "Also every time you start the game, a new terain is being generated."
   if (!isMultiplayerMode) {
     initWorld();
@@ -2585,6 +3229,400 @@ function startGame(silent = false) {
   setTimeout(resizeCanvas, 80);
 }
 window.startGame = startGame;
+
+// =========================================================================
+// CAMPAIGN MODE: STATE, STAGES, ARMORY DEPOT, BOUNTIES & TITAN BOSS
+// =========================================================================
+let campaignState = {
+  active: false,
+  stage: 1, // 1, 2, or 3
+  lives: 3,
+  maxLives: 3,
+  warbonds: 0,
+  upgrades: {
+    hull: 0,      // 0, 1, 2 (+50 HP each)
+    cannon: 0,    // 0: standard, 1: twin-barrel
+    engine: 0,    // 0, 1, 2 (+20% speed each)
+    drone: 0,     // 0: 60s, 1: 30s
+    life: 0       // total extra bought
+  },
+  stage1: {
+    powsRescued: 0,
+    targetPows: 6,
+    bountyDone: false
+  },
+  stage2: {
+    flagSecured: false,
+    bountyDone: false
+  },
+  stage3: {
+    bossDefeated: false,
+    bountyDone: false
+  }
+};
+
+let bountyTarget = null;
+let titanBoss = null;
+let intercomTimer = null;
+
+function showIntercom(msg, durationMs = 6500) {
+  const banner = document.getElementById('intercom-banner');
+  const msgEl = document.getElementById('intercom-message');
+  const timeEl = document.getElementById('intercom-timestamp');
+  if (!banner || !msgEl) return;
+  msgEl.textContent = msg;
+  if (timeEl) {
+    const d = new Date();
+    timeEl.textContent = d.toTimeString().split(' ')[0];
+  }
+  banner.style.display = 'block';
+  banner.style.opacity = '1';
+  sfx.playRadioBeep();
+  clearTimeout(intercomTimer);
+  intercomTimer = setTimeout(() => {
+    banner.style.opacity = '0';
+    setTimeout(() => { banner.style.display = 'none'; }, 350);
+  }, durationMs);
+}
+window.showIntercom = showIntercom;
+
+function getPlayerMaxHealth(baseSpec = null) {
+  const s = baseSpec || TANK_CLASSES[player.type];
+  const bonus = (campaignState.active && campaignState.upgrades.hull) ? (campaignState.upgrades.hull * 50) : 0;
+  return s.maxHealth + bonus;
+}
+
+function startOperationCampaign() {
+  campaignState.active = true;
+  campaignState.stage = 1;
+  campaignState.lives = 3;
+  campaignState.maxLives = 3;
+  campaignState.warbonds = 0;
+  campaignState.upgrades = { hull: 0, cannon: 0, engine: 0, drone: 0, life: 0 };
+  campaignState.stage1 = { powsRescued: 0, targetPows: 6, bountyDone: false };
+  campaignState.stage2 = { flagSecured: false, bountyDone: false };
+  campaignState.stage3 = { bossDefeated: false, bountyDone: false };
+
+  const campBox = document.getElementById('campaign-console-box');
+  if (campBox) campBox.style.display = 'block';
+  const mCamp = document.getElementById('m-campaign-stat');
+  if (mCamp) mCamp.style.display = 'flex';
+
+  startGame(false);
+  startStage(1);
+}
+window.startOperationCampaign = startOperationCampaign;
+
+function initStageWorld(stageNum) {
+  initWorld();
+
+  const riverX = (waterBodies.find(w => w.type === 'river') || {}).x || 1700;
+
+  if (stageNum === 1) {
+    // Stage 1: Radar Outpost Bounty
+    bountyTarget = {
+      type: 'radar',
+      name: 'RADAR INSTALLATION',
+      x: riverX + 540,
+      y: Math.floor(WORLD_H * 0.28),
+      w: 54,
+      h: 54,
+      hp: 300,
+      maxHp: 300,
+      angle: 0,
+      reward: 300
+    };
+    titanBoss = null;
+  } else if (stageNum === 2) {
+    // Stage 2: Fuel Convoy Bounty
+    bountyTarget = {
+      type: 'convoy',
+      name: 'HEAVY FUEL CONVOY',
+      x: riverX + 620,
+      y: Math.floor(WORLD_H * 0.72),
+      w: 68,
+      h: 42,
+      hp: 350,
+      maxHp: 350,
+      angle: 0,
+      reward: 400
+    };
+    titanBoss = null;
+  } else if (stageNum === 3) {
+    // Stage 3: Eastern Citadel Fortress & Titan Behemoth Super-Tank
+    bountyTarget = null;
+    titanBoss = {
+      active: true,
+      x: WORLD_W - 480,
+      y: Math.floor(WORLD_H * 0.5),
+      w: 96,
+      h: 68,
+      hp: 1500,
+      maxHp: 1500,
+      angle: Math.PI,
+      turretAngle: Math.PI,
+      speed: 1.6,
+      phase: 1, // 1: Frontal Armored, 2: Enraged (<750 HP)
+      lastShot: 0,
+      missileCooldown: 4.5,
+      turnTimer: 0,
+      targetAngle: Math.PI
+    };
+
+    // Fortified breach walls for Eastern Citadel
+    const cX = WORLD_W - 680;
+    const cY = Math.floor(WORLD_H * 0.5);
+    walls.push({ x: cX, y: cY - 260, w: 48, h: 200, hp: 350, maxHp: 350 });
+    walls.push({ x: cX, y: cY + 60, w: 48, h: 200, hp: 350, maxHp: 350 });
+    walls.push({ x: cX - 80, y: cY - 260, w: 120, h: 48, hp: 300, maxHp: 300 });
+    walls.push({ x: cX - 80, y: cY + 212, w: 120, h: 48, hp: 300, maxHp: 300 });
+
+    // Defense turrets guarding citadel breach
+    turrets.push({ x: cX + 24, y: cY - 180, hp: 250, maxHp: 250, angle: Math.PI, lastShot: 0 });
+    turrets.push({ x: cX + 24, y: cY + 180, hp: 250, maxHp: 250, angle: Math.PI, lastShot: 0 });
+  }
+}
+window.initStageWorld = initStageWorld;
+
+function startStage(stageNum) {
+  campaignState.stage = stageNum;
+  initStageWorld(stageNum);
+  player.health = getPlayerMaxHealth();
+  player.fuel = 100;
+  player.mines = TANK_CLASSES[player.type].mines;
+  player.pows = 0;
+  player.hasFlag = false;
+
+  const bossHud = document.getElementById('titan-boss-hud');
+  if (stageNum === 1) {
+    if (bossHud) bossHud.style.display = 'none';
+    showIntercom("COMMAND: STAGE 1 // BORDER RECON. Cross river bridges, rescue at least 6 POWs, and destroy the enemy radar outpost!");
+  } else if (stageNum === 2) {
+    if (bossHud) bossHud.style.display = 'none';
+    showIntercom("COMMAND: STAGE 2 // MOUNTAIN INFILTRATION. Navigate canyon passes, find the well-hidden cipher flag, and ambush the fuel convoy!");
+  } else if (stageNum === 3) {
+    if (bossHud) bossHud.style.display = 'block';
+    showIntercom("COMMAND: STAGE 3 // FORTRESS SIEGE. Citadel perimeter breached! Destroy the heavily armored TITAN BEHEMOTH super-tank!");
+    sfx.playBossWarning();
+  }
+}
+window.startStage = startStage;
+
+function openArmoryDepot() {
+  updateDepotUI();
+  const modal = document.getElementById('armory-depot-modal');
+  if (modal) modal.style.display = 'flex';
+  sfx.playFanfare();
+}
+window.openArmoryDepot = openArmoryDepot;
+
+function updateDepotUI() {
+  const wbVal = document.getElementById('depot-warbonds-val');
+  if (wbVal) wbVal.textContent = `$${campaignState.warbonds}`;
+  const livesVal = document.getElementById('depot-lives-val');
+  if (livesVal) livesVal.textContent = `${'★'.repeat(campaignState.lives)} (${campaignState.lives})`;
+
+  // Hull
+  const hullLbl = document.getElementById('tier-hull-label');
+  const hullBtn = document.getElementById('buy-hull-btn');
+  if (hullLbl) hullLbl.textContent = `TIER: ${campaignState.upgrades.hull} / 2 (+${campaignState.upgrades.hull * 50} HP)`;
+  if (hullBtn) {
+    if (campaignState.upgrades.hull >= 2) {
+      hullBtn.textContent = 'MAX TIER';
+      hullBtn.disabled = true;
+    } else {
+      const cost = campaignState.upgrades.hull === 0 ? 300 : 500;
+      hullBtn.textContent = `UPGRADE ($${cost} WB)`;
+      hullBtn.disabled = campaignState.warbonds < cost;
+    }
+  }
+
+  // Cannon
+  const cannonLbl = document.getElementById('tier-cannon-label');
+  const cannonBtn = document.getElementById('buy-cannon-btn');
+  if (cannonLbl) cannonLbl.textContent = campaignState.upgrades.cannon > 0 ? 'STATUS: EQUIPPED (TWIN SHELLS)' : 'STATUS: NOT EQUIPPED (SINGLE)';
+  if (cannonBtn) {
+    if (campaignState.upgrades.cannon > 0) {
+      cannonBtn.textContent = 'EQUIPPED';
+      cannonBtn.disabled = true;
+    } else {
+      cannonBtn.textContent = 'EQUIP ($500 WB)';
+      cannonBtn.disabled = campaignState.warbonds < 500;
+    }
+  }
+
+  // Engine
+  const engLbl = document.getElementById('tier-engine-label');
+  const engBtn = document.getElementById('buy-engine-btn');
+  if (engLbl) engLbl.textContent = `TIER: ${campaignState.upgrades.engine} / 2 (+${campaignState.upgrades.engine * 20}% SPD)`;
+  if (engBtn) {
+    if (campaignState.upgrades.engine >= 2) {
+      engBtn.textContent = 'MAX TIER';
+      engBtn.disabled = true;
+    } else {
+      engBtn.textContent = 'UPGRADE ($350 WB)';
+      engBtn.disabled = campaignState.warbonds < 350;
+    }
+  }
+
+  // Drone
+  const droneLbl = document.getElementById('tier-drone-label');
+  const droneBtn = document.getElementById('buy-drone-btn');
+  if (droneLbl) droneLbl.textContent = campaignState.upgrades.drone > 0 ? 'STATUS: UPGRADED (30s RECHARGE)' : 'STATUS: STANDARD (60s RECHARGE)';
+  if (droneBtn) {
+    if (campaignState.upgrades.drone > 0) {
+      droneBtn.textContent = 'UPGRADED';
+      droneBtn.disabled = true;
+    } else {
+      droneBtn.textContent = 'UPGRADE ($400 WB)';
+      droneBtn.disabled = campaignState.warbonds < 400;
+    }
+  }
+
+  // Reserve life
+  const lifeLbl = document.getElementById('tier-reserve-label');
+  const lifeBtn = document.getElementById('buy-life-btn');
+  if (lifeLbl) lifeLbl.textContent = `CURRENT RESERVES: ${campaignState.lives}`;
+  if (lifeBtn) {
+    lifeBtn.textContent = 'PURCHASE ($300 WB)';
+    lifeBtn.disabled = campaignState.warbonds < 300;
+  }
+}
+window.updateDepotUI = updateDepotUI;
+
+function buyDepotUpgrade(type) {
+  if (!campaignState.active) return;
+  sfx.init();
+  if (type === 'hull') {
+    const cost = campaignState.upgrades.hull === 0 ? 300 : 500;
+    if (campaignState.upgrades.hull >= 2) {
+      showToast("MAX HULL REINFORCEMENT REACHED!");
+      return;
+    }
+    if (campaignState.warbonds < cost) {
+      showToast(`INSUFFICIENT WARBONDS! NEED $${cost}`);
+      return;
+    }
+    campaignState.warbonds -= cost;
+    campaignState.upgrades.hull++;
+    player.health = Math.min(player.health + 50, getPlayerMaxHealth());
+    sfx.playFanfare();
+    showToast(`HULL REINFORCED (+50 HP)! TIER ${campaignState.upgrades.hull}/2`);
+  } else if (type === 'cannon') {
+    const cost = 500;
+    if (campaignState.upgrades.cannon > 0) {
+      showToast("TWIN-BARREL CANNON ALREADY EQUIPPED!");
+      return;
+    }
+    if (campaignState.warbonds < cost) {
+      showToast(`INSUFFICIENT WARBONDS! NEED $${cost}`);
+      return;
+    }
+    campaignState.warbonds -= cost;
+    campaignState.upgrades.cannon = 1;
+    sfx.playFanfare();
+    showToast("TWIN-BARREL CANNON EQUIPPED! PARALLEL SHELLS ACTIVE!");
+  } else if (type === 'engine') {
+    const cost = 350;
+    if (campaignState.upgrades.engine >= 2) {
+      showToast("MAX ENGINE TUNING REACHED!");
+      return;
+    }
+    if (campaignState.warbonds < cost) {
+      showToast(`INSUFFICIENT WARBONDS! NEED $${cost}`);
+      return;
+    }
+    campaignState.warbonds -= cost;
+    campaignState.upgrades.engine++;
+    sfx.playFanfare();
+    showToast(`HIGH-TORQUE ENGINE UPGRADED! TIER ${campaignState.upgrades.engine}/2`);
+  } else if (type === 'drone') {
+    const cost = 400;
+    if (campaignState.upgrades.drone > 0) {
+      showToast("ADVANCED DRONE AVIONICS ALREADY INSTALLED!");
+      return;
+    }
+    if (campaignState.warbonds < cost) {
+      showToast(`INSUFFICIENT WARBONDS! NEED $${cost}`);
+      return;
+    }
+    campaignState.warbonds -= cost;
+    campaignState.upgrades.drone = 1;
+    sfx.playFanfare();
+    showToast("DRONE AVIONICS UPGRADED! RECHARGE CUT TO 30s!");
+  } else if (type === 'life') {
+    const cost = 300;
+    if (campaignState.warbonds < cost) {
+      showToast(`INSUFFICIENT WARBONDS! NEED $${cost}`);
+      return;
+    }
+    campaignState.warbonds -= cost;
+    campaignState.lives++;
+    sfx.playRescue();
+    showToast(`REINFORCEMENT CHASSIS REQUISITIONED! LIVES: ${campaignState.lives}`);
+  }
+  updateDepotUI();
+}
+window.buyDepotUpgrade = buyDepotUpgrade;
+
+function deployNextStage() {
+  const modal = document.getElementById('armory-depot-modal');
+  if (modal) modal.style.display = 'none';
+  if (campaignState.stage < 3) {
+    campaignState.stage++;
+    startStage(campaignState.stage);
+  }
+}
+window.deployNextStage = deployNextStage;
+
+function retryStageFromCheckpoint() {
+  const modal = document.getElementById('mission-failed-modal');
+  if (modal) modal.style.display = 'none';
+  campaignState.lives = 3;
+  startStage(campaignState.stage);
+  showToast(`CHECKPOINT LOADED: STAGE ${campaignState.stage}`);
+}
+window.retryStageFromCheckpoint = retryStageFromCheckpoint;
+
+function abortCampaignToMenu() {
+  const failed = document.getElementById('mission-failed-modal');
+  if (failed) failed.style.display = 'none';
+  const depot = document.getElementById('armory-depot-modal');
+  if (depot) depot.style.display = 'none';
+  const vic = document.getElementById('campaign-victory-modal');
+  if (vic) vic.style.display = 'none';
+  const bossHud = document.getElementById('titan-boss-hud');
+  if (bossHud) bossHud.style.display = 'none';
+  const cBox = document.getElementById('campaign-console-box');
+  if (cBox) cBox.style.display = 'none';
+  const mCamp = document.getElementById('m-campaign-stat');
+  if (mCamp) mCamp.style.display = 'none';
+
+  campaignState.active = false;
+  gameStarted = false;
+  tankClassLocked = false;
+  const intro = document.getElementById('intro-screen');
+  if (intro) {
+    intro.style.display = 'flex';
+    intro.style.opacity = '1';
+  }
+}
+window.abortCampaignToMenu = abortCampaignToMenu;
+
+function showCampaignVictory() {
+  const vic = document.getElementById('campaign-victory-modal');
+  if (vic) {
+    const sEl = document.getElementById('vic-score');
+    if (sEl) sEl.textContent = score.toString().padStart(4, '0');
+    const wbEl = document.getElementById('vic-warbonds');
+    if (wbEl) wbEl.textContent = `$${campaignState.warbonds}`;
+    const powEl = document.getElementById('vic-pows');
+    if (powEl) powEl.textContent = rescuedPowsTotal.toString().padStart(2, '0');
+    vic.style.display = 'flex';
+  }
+  sfx.playFanfare();
+}
+window.showCampaignVictory = showCampaignVictory;
 
 // --- TANK CLASSES (Larger, more realistic military scale) ---
 const TANK_CLASSES = {
@@ -3387,8 +4425,9 @@ function launchPlayerDroneStrike() {
     return;
   }
 
-  // 60-second cooldown timer
-  playerDroneStrikeTimer = 60.0;
+  // 60-second cooldown timer (cut to 30s with Campaign Drone Avionics upgrade)
+  const baseCooldown = (campaignState.active && campaignState.upgrades.drone > 0) ? 30.0 : 60.0;
+  playerDroneStrikeTimer = baseCooldown;
 
   let targetX = mouse.worldX;
   let targetY = mouse.worldY;
@@ -4719,13 +5758,18 @@ function update(dt) {
 
   // 1. Player Driving Physics
   let moveSpeed = spec.speed;
+  let turnSpeed = spec.turnSpeed;
+  if (campaignState.active && campaignState.upgrades.engine > 0) {
+    moveSpeed *= (1 + campaignState.upgrades.engine * 0.20);
+    turnSpeed *= (1 + campaignState.upgrades.engine * 0.20);
+  }
   if (player.specialActive && player.type === 'light') moveSpeed *= 2.4;
   if (player.specialActive && player.type === 'heavy') moveSpeed = 0; // Anchored in Siege Mode
 
   let turn = 0;
   if (keys['a'] || keys['arrowleft']) turn -= 1;
   if (keys['d'] || keys['arrowright']) turn += 1;
-  player.angle += turn * spec.turnSpeed;
+  player.angle += turn * turnSpeed;
 
   let move = 0;
   if (keys['w'] || keys['arrowup']) move += 1;
@@ -4738,7 +5782,7 @@ function update(dt) {
     while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
     while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
 
-    const maxTurn = spec.turnSpeed * 1.6;
+    const maxTurn = turnSpeed * 1.6;
     if (Math.abs(angleDiff) > 0.04) {
       player.angle += Math.sign(angleDiff) * Math.min(Math.abs(angleDiff), maxTurn);
     }
@@ -4890,6 +5934,23 @@ function update(dt) {
           team: 1,
           color: '#f59e0b',
           life: 2.2
+        });
+      });
+    } else if (campaignState.active && campaignState.upgrades.cannon > 0) {
+      // Parallel Twin-Barrel Cannon Shells
+      const perpX = Math.cos(player.turretAngle + Math.PI / 2);
+      const perpY = Math.sin(player.turretAngle + Math.PI / 2);
+      [-6, 6].forEach(offset => {
+        projectiles.push({
+          x: bx + perpX * offset,
+          y: by + perpY * offset,
+          vx: Math.cos(player.turretAngle) * shellSpeed,
+          vy: Math.sin(player.turretAngle) * shellSpeed,
+          damage: shellDamage,
+          splash: blastSplash,
+          team: 1,
+          color: '#38bdf8',
+          life: 2.4
         });
       });
     } else {
@@ -5115,6 +6176,86 @@ function update(dt) {
       hit = true;
       sfx.playExplosion(false);
       createExplosion(p.x, p.y, p.splash);
+    }
+
+    // Campaign Bounty Target Hit Check
+    if (p.team === 1 && bountyTarget && bountyTarget.hp > 0) {
+      if (p.x >= bountyTarget.x - bountyTarget.w / 2 && p.x <= bountyTarget.x + bountyTarget.w / 2 &&
+          p.y >= bountyTarget.y - bountyTarget.h / 2 && p.y <= bountyTarget.y + bountyTarget.h / 2) {
+        bountyTarget.hp -= p.damage;
+        hit = true;
+        sfx.playExplosion(false);
+        createExplosion(p.x, p.y, p.splash);
+        if (bountyTarget.hp <= 0) {
+          bountyTarget.hp = 0;
+          campaignState.warbonds += bountyTarget.reward;
+          score += 500;
+          sfx.playFanfare();
+          createExplosion(bountyTarget.x, bountyTarget.y, 45);
+          showToast(`🎯 BOUNTY DESTROYED: ${bountyTarget.name}! +$${bountyTarget.reward} WARBONDS!`);
+          showIntercom(`COMMAND: Tactical Bounty Target Neutralized! Requisition bonus +$${bountyTarget.reward} Warbonds credited to squad depot.`);
+          if (campaignState.stage === 1) campaignState.stage1.bountyDone = true;
+          if (campaignState.stage === 2) campaignState.stage2.bountyDone = true;
+        }
+      }
+    }
+
+    // Campaign Titan Behemoth Boss Hit Check
+    if (p.team === 1 && titanBoss && titanBoss.hp > 0 && titanBoss.active) {
+      if (Math.hypot(p.x - titanBoss.x, p.y - titanBoss.y) < 48) {
+        let dmg = p.damage;
+        // Calculate hit angle relative to boss facing direction
+        const hitAngle = Math.atan2(p.y - titanBoss.y, p.x - titanBoss.x);
+        let angleDiff = Math.abs((hitAngle - titanBoss.angle + Math.PI * 3) % (Math.PI * 2) - Math.PI);
+
+        if (angleDiff < Math.PI / 3) {
+          // Frontal arc (+/- 60 degrees): Heavy Deflection Armor!
+          dmg *= 0.5;
+          showToast("FRONTAL DEFLECTION! -50% DMG");
+          createExplosion(p.x, p.y, p.splash * 0.7);
+        } else if (titanBoss.phase === 2 && angleDiff > Math.PI * 2 / 3) {
+          // Rear arc (> 120 degrees) in Phase 2: EXPOSED RADIATOR WEAKSPOT!
+          dmg *= 3.0;
+          sfx.playCriticalHit();
+          showToast("💥 CRITICAL HIT! 3X WEAKSPOT DAMAGE!");
+          createExplosion(p.x, p.y, p.splash * 1.5);
+        } else {
+          createExplosion(p.x, p.y, p.splash);
+        }
+
+        titanBoss.hp -= dmg;
+        hit = true;
+        sfx.playExplosion(false);
+
+        // Check Phase 2 transition
+        if (titanBoss.phase === 1 && titanBoss.hp <= titanBoss.maxHp * 0.5) {
+          titanBoss.phase = 2;
+          sfx.playBossWarning();
+          showToast("⚠️ BEHEMOTH ENRAGED! MISSILE BARRAGES ACTIVE! REAR WEAKSPOT EXPOSED!");
+          showIntercom("COMMAND WARNING: Titan Behemoth has entered Phase 2 Enrage! High-explosive missile salvos incoming! Flank immediately and target the glowing rear exhaust radiator!");
+        }
+
+        // Check Destruction
+        if (titanBoss.hp <= 0) {
+          titanBoss.hp = 0;
+          titanBoss.active = false;
+          campaignState.stage3.bossDefeated = true;
+          campaignState.warbonds += 1000;
+          score += 2000;
+          // Chain explosion
+          for (let k = 0; k < 6; k++) {
+            setTimeout(() => {
+              createExplosion(titanBoss.x + (Math.random() - 0.5) * 80, titanBoss.y + (Math.random() - 0.5) * 80, 50);
+              sfx.playExplosion(true);
+            }, k * 180);
+          }
+          showToast("🏆 TITAN BEHEMOTH NEUTRALIZED! CAMPAIGN VICTORY!");
+          showIntercom("COMMAND: All units, Titan Behemoth is destroyed! Citadel fallen! The theater is liberated!");
+          setTimeout(() => {
+            showCampaignVictory();
+          }, 1800);
+        }
+      }
     }
 
     // Turrets
@@ -5631,10 +6772,98 @@ function update(dt) {
     }
   });
 
+  // 7b. Titan Behemoth Super-Tank Boss AI & Phase Combat Loop
+  if (titanBoss && titanBoss.active && titanBoss.hp > 0) {
+    const dBossPlayer = Math.hypot(player.x - titanBoss.x, player.y - titanBoss.y);
+    const toPlayer = Math.atan2(player.y - titanBoss.y, player.x - titanBoss.x);
+
+    // Turret tracks player smoothly
+    titanBoss.turretAngle = toPlayer;
+
+    // Movement AI: Hull turns towards player
+    const desiredHullAngle = toPlayer;
+    let diff = desiredHullAngle - titanBoss.angle;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    titanBoss.angle += Math.sign(diff) * Math.min(Math.abs(diff), 0.025);
+
+    // Standoff movement
+    if (dBossPlayer > 300) {
+      const step = (titanBoss.phase === 2 ? 1.8 : 1.2);
+      const nx = titanBoss.x + Math.cos(titanBoss.angle) * step;
+      const ny = titanBoss.y + Math.sin(titanBoss.angle) * step;
+      if (!checkCollision(nx, ny, 44)) {
+        titanBoss.x = nx;
+        titanBoss.y = ny;
+      }
+    } else if (dBossPlayer < 160) {
+      // Back up if player gets too close
+      const step = 0.9;
+      const nx = titanBoss.x - Math.cos(titanBoss.angle) * step;
+      const ny = titanBoss.y - Math.sin(titanBoss.angle) * step;
+      if (!checkCollision(nx, ny, 44)) {
+        titanBoss.x = nx;
+        titanBoss.y = ny;
+      }
+    }
+
+    // Heavy Twin-Cannon Attack (Every 2.4s in Phase 1, 1.6s in Phase 2)
+    const fireInterval = titanBoss.phase === 2 ? 1600 : 2400;
+    if (now - titanBoss.lastShot >= fireInterval && dBossPlayer < 850) {
+      titanBoss.lastShot = now;
+      sfx.playCannon();
+      const perpX = Math.cos(titanBoss.turretAngle + Math.PI / 2);
+      const perpY = Math.sin(titanBoss.turretAngle + Math.PI / 2);
+      [-10, 10].forEach(off => {
+        projectiles.push({
+          x: titanBoss.x + Math.cos(titanBoss.turretAngle) * 48 + perpX * off,
+          y: titanBoss.y + Math.sin(titanBoss.turretAngle) * 48 + perpY * off,
+          vx: Math.cos(titanBoss.turretAngle) * 9.5,
+          vy: Math.sin(titanBoss.turretAngle) * 9.5,
+          damage: 35,
+          splash: 30,
+          team: 2,
+          color: '#ef4444',
+          life: 2.8
+        });
+      });
+    }
+
+    // Phase 2: Enraged Missile Barrages!
+    if (titanBoss.phase === 2) {
+      titanBoss.missileCooldown -= dt;
+      if (titanBoss.missileCooldown <= 0) {
+        titanBoss.missileCooldown = 4.5;
+        // Launch cluster of 4 tactical seeker missiles towards player!
+        sfx.playAirRaid();
+        showToast("⚠️ TITAN MISSILE BARRAGE LAUNCHED! EVACUATE!");
+        for (let m = 0; m < 4; m++) {
+          setTimeout(() => {
+            if (!titanBoss || titanBoss.hp <= 0) return;
+            const spreadAngle = titanBoss.turretAngle + (Math.random() - 0.5) * 0.5;
+            projectiles.push({
+              x: titanBoss.x,
+              y: titanBoss.y,
+              vx: Math.cos(spreadAngle) * 8.0,
+              vy: Math.sin(spreadAngle) * 8.0,
+              damage: 40,
+              splash: 45,
+              team: 2,
+              color: '#f97316',
+              life: 3.2
+            });
+            sfx.playMissileWhistle();
+          }, m * 200);
+        }
+      }
+    }
+  }
+
   // 8. Base Garage Interactions & CTF Loop
   if (Math.hypot(player.x - homeBase.x, player.y - homeBase.y) < homeBase.r) {
-    if (player.health < spec.maxHealth || player.fuel < 100 || player.mines < spec.mines || player.pows > 0 || player.hasFlag) {
-      player.health = spec.maxHealth;
+    const effectiveMaxHp = getPlayerMaxHealth(spec);
+    if (player.health < effectiveMaxHp || player.fuel < 100 || player.mines < spec.mines || player.pows > 0 || player.hasFlag) {
+      player.health = effectiveMaxHp;
       player.fuel = 100;
       player.mines = spec.mines;
 
@@ -5642,9 +6871,26 @@ function update(dt) {
         const rescuedCount = player.pows;
         rescuedPowsTotal += player.pows;
         score += player.pows * 250;
-        showToast(`SAFELY EXTRACTED ${player.pows} POWS! +${player.pows * 250} PTS`);
+        if (campaignState.active) {
+          campaignState.warbonds += player.pows * 50;
+          campaignState.stage1.powsRescued += player.pows;
+          showToast(`SAFELY EXTRACTED ${player.pows} POWS! +${player.pows * 250} PTS // +$${player.pows * 50} WARBONDS`);
+        } else {
+          showToast(`SAFELY EXTRACTED ${player.pows} POWS! +${player.pows * 250} PTS`);
+        }
         player.pows = 0;
         sfx.playRescue();
+
+        // Stage 1 Progression Check: 6+ POWs rescued
+        if (campaignState.active && campaignState.stage === 1 && campaignState.stage1.powsRescued >= campaignState.stage1.targetPows) {
+          campaignState.warbonds += 500;
+          showToast("★ STAGE 1 COMPLETE! OBJECTIVE CLEARED! +$500 BONUS!");
+          showIntercom("COMMAND: Outstanding recon work! All POWs secured! Report to Field Armory Depot to upgrade tank chassis for Stage 2.");
+          setTimeout(() => {
+            openArmoryDepot();
+          }, 1500);
+        }
+
         if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
           mpSocket.send(JSON.stringify({
             type: 'pow_rescued',
@@ -5665,6 +6911,18 @@ function update(dt) {
         enemyFlag.x = enemyFlag.homeX;
         enemyFlag.y = enemyFlag.homeY;
         showToast("ENEMY BASE CAPTURED! +1000 PTS!");
+
+        // Stage 2 Progression Check: Cipher flag extracted
+        if (campaignState.active && campaignState.stage === 2) {
+          campaignState.stage2.flagSecured = true;
+          campaignState.warbonds += 600;
+          showToast("★ STAGE 2 COMPLETE! CIPHER FLAG RECOVERED! +$600 BONUS!");
+          showIntercom("COMMAND: Cipher flag secured! Hostile defensive cipher broken! Accessing Citadel sector. Re-arm at Field Armory Depot immediately!");
+          setTimeout(() => {
+            openArmoryDepot();
+          }, 1500);
+        }
+
         if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
           mpSocket.send(JSON.stringify({
             type: 'flag_returned',
@@ -5785,8 +7043,38 @@ function createExplosion(x, y, radius) {
 }
 
 function respawnPlayer() {
-  player.x = 360; player.y = 1500;
-  player.health = TANK_CLASSES[player.type].maxHealth;
+  if (campaignState.active) {
+    if (campaignState.lives > 1) {
+      campaignState.lives--;
+      player.x = homeBase.x;
+      player.y = homeBase.y;
+      player.health = getPlayerMaxHealth();
+      player.fuel = 100;
+      player.pows = 0;
+      if (player.hasFlag) {
+        player.hasFlag = false;
+        enemyFlag.carried = false;
+        enemyFlag.x = enemyFlag.homeX;
+        enemyFlag.y = enemyFlag.homeY;
+      }
+      showToast(`⚠️ TANK DESTROYED! REINFORCEMENT DISPATCHED (${campaignState.lives} RESERVES REMAIN)`);
+      showIntercom(`COMMAND: Tank destroyed in action! Forwarding replacement chassis. ${campaignState.lives} reserves remaining.`);
+      return;
+    } else {
+      campaignState.lives = 0;
+      player.health = 0;
+      const failed = document.getElementById('mission-failed-modal');
+      if (failed) failed.style.display = 'flex';
+      sfx.playAirRaid();
+      showToast("☠️ ALL REINFORCEMENTS EXPENDED! MISSION FAILED!");
+      return;
+    }
+  }
+
+  // Skirmish mode respawn
+  player.x = homeBase.x || 360;
+  player.y = homeBase.y || 1500;
+  player.health = getPlayerMaxHealth();
   player.fuel = 100;
   player.pows = 0;
   if (player.hasFlag) {
@@ -5821,9 +7109,10 @@ function updateConsole(spec) {
   const btnMineBadge = document.getElementById('btn-mine-badge');
   if (btnMineBadge) btnMineBadge.textContent = minesStr;
 
-  const hpPct = Math.max(0, player.health / spec.maxHealth);
+  const effectiveMaxHp = getPlayerMaxHealth(spec);
+  const hpPct = Math.max(0, player.health / effectiveMaxHp);
   const hpGradient = hpPct > 0.5 ? 'linear-gradient(90deg, #15803d, #22c55e)' : (hpPct > 0.25 ? 'linear-gradient(90deg, #b45309, #f59e0b)' : 'linear-gradient(90deg, #991b1b, #ef4444)');
-  const hpTxt = `${Math.ceil(player.health)} / ${spec.maxHealth}`;
+  const hpTxt = `${Math.ceil(player.health)} / ${effectiveMaxHp}`;
 
   const armorBar = document.getElementById('armor-bar');
   if (armorBar) {
@@ -5840,6 +7129,53 @@ function updateConsole(spec) {
   }
   const mArmorTxt = document.getElementById('m-armor-txt');
   if (mArmorTxt) mArmorTxt.textContent = hpTxt;
+
+  // Campaign Mode Status Readouts
+  if (campaignState.active) {
+    const dCampBox = document.getElementById('campaign-console-box');
+    if (dCampBox) dCampBox.style.display = 'block';
+    const cStage = document.getElementById('campaign-stage-badge');
+    if (cStage) cStage.textContent = `STAGE ${campaignState.stage}/3`;
+    const cWb = document.getElementById('campaign-warbonds-digits');
+    if (cWb) cWb.textContent = `$${campaignState.warbonds}`;
+    const cLives = document.getElementById('campaign-lives-digits');
+    if (cLives) cLives.textContent = '★'.repeat(Math.max(0, campaignState.lives));
+
+    // Mobile
+    const mCamp = document.getElementById('m-campaign-stat');
+    if (mCamp) mCamp.style.display = 'flex';
+    const mStg = document.getElementById('m-stage-lbl');
+    if (mStg) mStg.textContent = `STG:${campaignState.stage}`;
+    const mWb = document.getElementById('m-warbonds-digits');
+    if (mWb) mWb.textContent = `$${campaignState.warbonds}`;
+  } else {
+    const dCampBox = document.getElementById('campaign-console-box');
+    if (dCampBox) dCampBox.style.display = 'none';
+    const mCamp = document.getElementById('m-campaign-stat');
+    if (mCamp) mCamp.style.display = 'none';
+  }
+
+  // Titan Behemoth Boss HUD
+  const bossHud = document.getElementById('titan-boss-hud');
+  if (bossHud) {
+    if (campaignState.active && titanBoss && titanBoss.active && titanBoss.hp > 0) {
+      bossHud.style.display = 'block';
+      const bFill = document.getElementById('boss-hp-fill');
+      if (bFill) bFill.style.width = Math.max(0, (titanBoss.hp / titanBoss.maxHp) * 100) + '%';
+      const bPhase = document.getElementById('boss-phase-badge');
+      if (bPhase) {
+        if (titanBoss.phase === 2) {
+          bPhase.textContent = 'PHASE 2: ENRAGED (EXPOSED REAR RADIATOR)';
+          bPhase.style.color = '#f97316';
+        } else {
+          bPhase.textContent = 'PHASE 1: ARMORED DEFLECTION';
+          bPhase.style.color = '#ef4444';
+        }
+      }
+    } else {
+      bossHud.style.display = 'none';
+    }
+  }
 
   const fuelBar = document.getElementById('fuel-bar');
   if (fuelBar) fuelBar.style.width = player.fuel + '%';
@@ -6084,6 +7420,172 @@ function render() {
     const s = TANK_CLASSES[e.type];
     renderRealisticTank(e.x, e.y, e.angle, e.turretAngle, s.width, s.height, '#b91c1c', '#7f1d1d', s.barrelLen, false, 0);
   });
+
+  // 13b. Campaign Bounty Target Rendering
+  if (bountyTarget && bountyTarget.hp > 0) {
+    ctx.save();
+    ctx.translate(bountyTarget.x, bountyTarget.y);
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillRect(-bountyTarget.w/2 + 8, -bountyTarget.h/2 + 8, bountyTarget.w, bountyTarget.h);
+
+    if (bountyTarget.type === 'radar') {
+      // Concrete Octagonal Platform
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(-bountyTarget.w/2, -bountyTarget.h/2, bountyTarget.w, bountyTarget.h);
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 2;
+      ctx.strokeRect(-bountyTarget.w/2, -bountyTarget.h/2, bountyTarget.w, bountyTarget.h);
+      // Rotating Radar Parabolic Mesh
+      ctx.save();
+      const rot = (Date.now() / 1000) * 2.2;
+      ctx.rotate(rot);
+      ctx.fillStyle = '#fde047';
+      ctx.beginPath();
+      ctx.arc(0, 0, 22, -0.6, 0.6);
+      ctx.lineTo(0, 0);
+      ctx.fill();
+      ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3;
+      ctx.stroke();
+      ctx.restore();
+    } else {
+      // Fuel Convoy Heavy Tanker Rig
+      ctx.fillStyle = '#78350f';
+      ctx.fillRect(-bountyTarget.w/2, -bountyTarget.h/2, bountyTarget.w, bountyTarget.h);
+      ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 2.5;
+      ctx.strokeRect(-bountyTarget.w/2, -bountyTarget.h/2, bountyTarget.w, bountyTarget.h);
+      // Cylindrical Tanker Shell
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(-bountyTarget.w/2 + 8, -bountyTarget.h/2 + 6, bountyTarget.w - 24, bountyTarget.h - 12);
+      ctx.fillStyle = '#000'; ctx.font = 'bold 9px monospace';
+      ctx.fillText('FUEL', -12, 3);
+    }
+
+    // Health bar above bounty
+    const bHpPct = Math.max(0, bountyTarget.hp / bountyTarget.maxHp);
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(-28, -bountyTarget.h/2 - 16, 56, 7);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(-27, -bountyTarget.h/2 - 15, 54 * bHpPct, 5);
+    ctx.fillStyle = '#fef08a'; ctx.font = 'bold 9px monospace';
+    ctx.fillText(`★ BOUNTY: ${bountyTarget.name}`, -48, -bountyTarget.h/2 - 20);
+
+    ctx.restore();
+  }
+
+  // 13c. Titan Behemoth Boss Rendering
+  if (titanBoss && titanBoss.active && titanBoss.hp > 0) {
+    ctx.save();
+    ctx.translate(titanBoss.x, titanBoss.y);
+
+    // Directional Shadow
+    ctx.save();
+    ctx.rotate(titanBoss.angle + Math.PI / 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fillRect(-titanBoss.w/2 + 18, -titanBoss.h/2 + 18, titanBoss.w, titanBoss.h);
+    ctx.restore();
+
+    // Massive Quad-Tread Chassis
+    ctx.save();
+    ctx.rotate(titanBoss.angle + Math.PI / 2);
+    const bw = titanBoss.w;
+    const bh = titanBoss.h;
+    const trW = bw * 0.24;
+
+    // Heavy Treads
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(-bw/2, -bh/2, trW, bh);
+    ctx.fillRect(bw/2 - trW, -bh/2, trW, bh);
+    // Tread lugs
+    ctx.fillStyle = '#334155';
+    for (let ty = -bh/2 + 4; ty < bh/2 - 4; ty += 10) {
+      ctx.fillRect(-bw/2, ty, trW, 4);
+      ctx.fillRect(bw/2 - trW, ty, trW, 4);
+    }
+
+    // Main Citadel Armored Hull
+    ctx.fillStyle = titanBoss.phase === 2 ? '#7f1d1d' : '#450a0a';
+    ctx.fillRect(-bw/2 + trW - 2, -bh/2, bw - trW * 2 + 4, bh);
+    ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3;
+    ctx.strokeRect(-bw/2 + trW - 2, -bh/2, bw - trW * 2 + 4, bh);
+
+    // Frontal Deflection Armor Plating (Heavy Sloped Glacis)
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.moveTo(-bw/4, -bh/2);
+    ctx.lineTo(bw/4, -bh/2);
+    ctx.lineTo(bw/3, -bh/4);
+    ctx.lineTo(-bw/3, -bh/4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 2; ctx.stroke();
+
+    // Hazard Stripes on Armor Skirts
+    ctx.fillStyle = '#eab308';
+    ctx.fillRect(-bw/3, -bh/3, (bw*2)/3, 6);
+    ctx.fillStyle = '#000';
+    for (let hx = -bw/3; hx < bw/3 - 8; hx += 16) {
+      ctx.fillRect(hx, -bh/3, 8, 6);
+    }
+
+    // Phase 2: Exposed Glowing Rear Exhaust Port (Radiator Weakspot)
+    if (titanBoss.phase === 2) {
+      const pulse = 0.5 + Math.sin(Date.now() / 120) * 0.45;
+      ctx.fillStyle = `rgba(249, 115, 22, ${0.4 + pulse * 0.5})`;
+      ctx.fillRect(-bw/4, bh/2 - 16, bw/2, 14);
+      ctx.strokeStyle = '#ea580c'; ctx.lineWidth = 3;
+      ctx.strokeRect(-bw/4, bh/2 - 16, bw/2, 14);
+
+      // Warning chevron label
+      ctx.fillStyle = '#ffedd5'; ctx.font = 'bold 9px monospace';
+      ctx.fillText('⚡ WEAKSPOT ⚡', -34, bh/2 + 22);
+    } else {
+      // Closed armored heat shield
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-bw/4, bh/2 - 14, bw/2, 10);
+    }
+    ctx.restore();
+
+    // Heavy Rotating Super-Turret Dome
+    ctx.save();
+    ctx.rotate(titanBoss.turretAngle);
+
+    // Twin High-Caliber Main Cannons
+    [-12, 12].forEach(bOff => {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, bOff - 5, 54, 10);
+      ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 1.5;
+      ctx.strokeRect(0, bOff - 5, 54, 10);
+      // Muzzle Brakes
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(48, bOff - 8, 10, 16);
+    });
+
+    // Turret Armored Octagon
+    ctx.fillStyle = titanBoss.phase === 2 ? '#991b1b' : '#581c87';
+    ctx.beginPath();
+    ctx.arc(0, 0, 32, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = titanBoss.phase === 2 ? '#f97316' : '#c084fc'; ctx.lineWidth = 3.5;
+    ctx.stroke();
+
+    // Commander Cupola
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath(); ctx.arc(-6, 0, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2; ctx.stroke();
+
+    ctx.restore();
+
+    // Overhead Health Bar & Name
+    const bossHpPct = Math.max(0, titanBoss.hp / titanBoss.maxHp);
+    ctx.fillStyle = 'rgba(0,0,0,0.85)';
+    ctx.fillRect(-48, -titanBoss.h/2 - 24, 96, 9);
+    ctx.fillStyle = titanBoss.phase === 2 ? '#ea580c' : '#dc2626';
+    ctx.fillRect(-47, -titanBoss.h/2 - 23, 94 * bossHpPct, 7);
+    ctx.fillStyle = '#f87171'; ctx.font = 'bold 11px monospace';
+    ctx.fillText(titanBoss.phase === 2 ? 'TITAN BEHEMOTH [ENRAGED]' : 'TITAN BEHEMOTH [PHASE 1]', -64, -titanBoss.h/2 - 28);
+
+    ctx.restore();
+  }
 
   // 14. Player Tank (Bigger, textured, recoil animation)
   const pSpec = TANK_CLASSES[player.type];
@@ -6802,14 +8304,27 @@ function renderRealisticTank(x, y, hullAngle, turretAngle, w, h, baseColor, camo
 
   // Cannon Barrel with Recoil
   const rOffset = recoilOffset || 0;
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(0 - rOffset, -5, barrelLen, 10);
-  ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
-  ctx.strokeRect(0 - rOffset, -5, barrelLen, 10);
+  if (isPlayer && campaignState.active && campaignState.upgrades.cannon > 0) {
+    // Twin-Barrel Cannon
+    [-5, 5].forEach(bOff => {
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0 - rOffset, bOff - 4, barrelLen, 8);
+      ctx.strokeStyle = '#000'; ctx.lineWidth = 1.2;
+      ctx.strokeRect(0 - rOffset, bOff - 4, barrelLen, 8);
+      // Muzzle Brake
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(barrelLen - 4 - rOffset, bOff - 6, 6, 12);
+    });
+  } else {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0 - rOffset, -5, barrelLen, 10);
+    ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(0 - rOffset, -5, barrelLen, 10);
 
-  // Muzzle Brake at Barrel Tip
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(barrelLen - 4 - rOffset, -7, 6, 14);
+    // Muzzle Brake at Barrel Tip
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(barrelLen - 4 - rOffset, -7, 6, 14);
+  }
 
   // Cast Armor Turret Dome
   ctx.fillStyle = isPlayer ? baseColor : '#7f1d1d';
@@ -7035,6 +8550,23 @@ function renderConsoleRadar() {
     radarCtx.fill();
     radarCtx.strokeStyle = '#ffffff';
     radarCtx.lineWidth = 1.2;
+    radarCtx.stroke();
+  }
+
+  // 12e. Campaign Bounty Target on Radar (ONLY if discovered)
+  if (bountyTarget && bountyTarget.hp > 0 && isWorldPosDiscovered(bountyTarget.x, bountyTarget.y)) {
+    radarCtx.fillStyle = '#f59e0b';
+    radarCtx.fillRect(bountyTarget.x * sx - 3, bountyTarget.y * sy - 3, 6, 6);
+  }
+
+  // 12f. Campaign Titan Behemoth Boss on Radar (Pulsing Red/Orange if discovered)
+  if (titanBoss && titanBoss.active && titanBoss.hp > 0 && isWorldPosDiscovered(titanBoss.x, titanBoss.y)) {
+    radarCtx.fillStyle = (Date.now() % 400 < 200) ? '#ef4444' : '#f97316';
+    radarCtx.beginPath();
+    radarCtx.arc(titanBoss.x * sx, titanBoss.y * sy, 6, 0, Math.PI * 2);
+    radarCtx.fill();
+    radarCtx.strokeStyle = '#ffffff';
+    radarCtx.lineWidth = 1.5;
     radarCtx.stroke();
   }
 
