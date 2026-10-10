@@ -27,36 +27,46 @@ function generateBases(worldW, worldH) {
 
 // Procedural battlefield terrain generator (synchronized across both players)
 function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random() * 100000)) {
-  let s = seed;
+  let parsed;
+  try {
+    parsed = Number(seed);
+  } catch (e) {
+    parsed = NaN;
+  }
+  const sSeed = (Number.isFinite(parsed) && seed !== undefined && seed !== null && seed !== '')
+    ? Math.abs(Math.floor(parsed)) % 233280
+    : (Math.floor(Math.random() * 900000) + 100000);
+  let s = sSeed;
   function rnd() {
-    s = (s * 9301 + 49297) % 233280;
+    s = Math.abs((s * 9301 + 49297) % 233280);
     return s / 233280;
   }
 
-  // Randomized river X between 44% and 56% of world width
+  // 1. Central River & Water Bodies
   const riverX = Math.floor(worldW * (0.45 + rnd() * 0.10));
-  const riverWidth = 160;
+  const riverW = 160;
 
-  // Sturdy bridges spanning across river with wide overhang to prevent any water collision
-  const bW = riverWidth + 50;
-  const bX = riverX - 25;
+  const bridgeWidth = riverW + 50;
+  const bridgeX = riverX - 25;
   const bridge1Y = Math.floor(worldH * (0.18 + rnd() * 0.08));
   const bridge2Y = Math.floor(worldH * 0.50);
   const bridge3Y = Math.floor(worldH * (0.74 + rnd() * 0.08));
 
-  const bridges = [
-    { x: bX, y: bridge1Y, w: bW, h: 110, name: 'North Bridge', type: 'wood' },
-    { x: bX, y: bridge2Y, w: bW, h: 120, name: 'Central Highway Bridge', type: 'concrete' },
-    { x: bX, y: bridge3Y, w: bW, h: 110, name: 'South Pontoon Bridge', type: 'pontoon' }
-  ];
-
   const waterBodies = [
-    { x: riverX, y: 0, w: riverWidth, h: worldH, type: 'river' },
-    { x: Math.floor(riverX * 0.58), y: Math.floor(worldH * (0.16 + rnd() * 0.08)), r: 110, type: 'circle' },
-    { x: Math.floor(riverX * 0.58), y: Math.floor(worldH * (0.76 + rnd() * 0.08)), r: 110, type: 'circle' },
-    { x: riverX + 540, y: Math.floor(worldH * (0.22 + rnd() * 0.08)), r: 95, type: 'circle' }
+    { x: riverX, y: 0, w: riverW, h: worldH, type: 'river' },
+    { x: Math.floor(riverX * 0.45), y: Math.floor(bridge1Y * 0.45), r: 85, type: 'circle' },
+    { x: Math.floor(riverX * 0.45), y: Math.floor(bridge3Y + (worldH - bridge3Y) * 0.55), r: 85, type: 'circle' },
+    { x: riverX + 420, y: Math.floor(bridge1Y * 0.45), r: 85, type: 'circle' }
   ];
 
+  // 2. Bridges
+  const bridges = [
+    { x: bridgeX, y: bridge1Y, w: bridgeWidth, h: 110, name: 'North Bridge', type: 'wood' },
+    { x: bridgeX, y: bridge2Y, w: bridgeWidth, h: 120, name: 'Central Highway Bridge', type: 'concrete' },
+    { x: bridgeX, y: bridge3Y, w: bridgeWidth, h: 110, name: 'South Pontoon Bridge', type: 'pontoon' }
+  ];
+
+  // 3. Highways & Arterial Roads
   const roads = [
     { x: 180, y: bridge2Y + 5, w: worldW - 360, h: 110 },
     { x: 300, y: bridge1Y + 10, w: worldW - 600, h: 90 },
@@ -65,31 +75,46 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
     { x: worldW - 940, y: bridge1Y + 10, w: 90, h: bridge3Y - bridge1Y }
   ];
 
-  function overlapsRoad(rx, ry, rw, rh, margin = 20) {
+  // 4. Spatial Clearance Helpers (margin = 20px)
+  function doesRectOverlapRoad(x, y, w, h, margin = 20) {
     for (const r of roads) {
-      if (rx < r.x + r.w + margin && rx + rw + margin > r.x &&
-          ry < r.y + r.h + margin && ry + rh + margin > r.y) {
+      if (x + w > r.x - margin && x < r.x + r.w + margin &&
+          y + h > r.y - margin && y < r.y + r.h + margin) {
         return true;
       }
     }
     return false;
   }
 
+  function doesCircleOverlapRoad(cx, cy, radius, margin = 20) {
+    for (const r of roads) {
+      const checkR = radius + margin;
+      const closestX = Math.max(r.x, Math.min(cx, r.x + r.w));
+      const closestY = Math.max(r.y, Math.min(cy, r.y + r.h));
+      const dx = cx - closestX;
+      const dy = cy - closestY;
+      if (dx * dx + dy * dy < checkR * checkR) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // 5. Mountains
   const mountains = [];
-  const mPassOffsets = [
+  const mOffsets = [
     { x: riverX - 380, y: Math.floor(worldH * 0.35), r: 95 },
     { x: riverX + 380, y: Math.floor(worldH * 0.35), r: 95 },
     { x: riverX - 380, y: Math.floor(worldH * 0.65), r: 95 },
     { x: riverX + 380, y: Math.floor(worldH * 0.65), r: 95 },
     { x: Math.floor(riverX * 0.40), y: Math.floor(worldH * 0.12), r: 85 },
     { x: worldW - Math.floor(riverX * 0.35), y: Math.floor(worldH * 0.88), r: 90 },
-    // Deep eastern mountain ridges creating secluded valley corridors for hidden objectives
     { x: worldW - 460, y: Math.floor(worldH * 0.28), r: 105 },
     { x: worldW - 360, y: Math.floor(worldH * 0.18), r: 85 },
     { x: worldW - 420, y: Math.floor(worldH * 0.72), r: 100 },
     { x: worldW - 550, y: Math.floor(worldH * 0.82), r: 85 }
   ];
-  for (const m of mPassOffsets) {
+  for (const m of mOffsets) {
     mountains.push({
       x: m.x + (rnd() - 0.5) * 40,
       y: m.y + (rnd() - 0.5) * 40,
@@ -98,46 +123,98 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
     });
   }
 
+  // 6. Walls (Starting Compound Breach Walls & Perimeter Walls)
+  const walls = [];
+  function addWall(w) {
+    if (!doesRectOverlapRoad(w.x, w.y, w.w, w.h, 20)) {
+      walls.push(w);
+    }
+  }
+  addWall({ x: 180, y: bridge2Y - 200, w: 260, h: 48, hp: 150, maxHp: 150 });
+  addWall({ x: 600, y: bridge2Y - 520, w: 48, h: 260, hp: 150, maxHp: 150 });
+  addWall({ x: 180, y: bridge2Y + 240, w: 220, h: 48, hp: 150, maxHp: 150 });
+  addWall({ x: 500, y: bridge2Y + 240, w: 180, h: 48, hp: 100, maxHp: 150 });
+
+  for (let x = 80; x < worldW - 80; x += 80) {
+    addWall({ x, y: 60, w: 80, h: 48, hp: 120, maxHp: 120 });
+    addWall({ x, y: worldH - 108, w: 80, h: 48, hp: 120, maxHp: 120 });
+  }
+  for (let y = 108; y < worldH - 108; y += 80) {
+    addWall({ x: 60, y, w: 48, h: 80, hp: 120, maxHp: 120 });
+    addWall({ x: worldW - 108, y, w: 48, h: 80, hp: 120, maxHp: 120 });
+  }
+
+  // 7. Houses & Bunkers
   const houses = [];
-  for (let i = 0; i < 18; i++) {
+  function addHouse(h) {
+    if (!doesRectOverlapRoad(h.x, h.y, h.w, h.h, 20)) {
+      houses.push(h);
+    }
+  }
+  addHouse({ x: 460, y: bridge2Y - 260, w: 120, h: 100, hp: 220, maxHp: 220, type: 'bunker', roofColor: '#16a34a' });
+
+  for (let i = 0; i < 20; i++) {
     const hx = 350 + rnd() * (worldW - 700);
     const hy = 250 + rnd() * (worldH - 500);
-    if (Math.abs(hx - riverX) > 190 && !overlapsRoad(hx, hy, 120, 90, 20)) {
-      houses.push({
-        x: Math.floor(hx), y: Math.floor(hy), w: 120, h: 90, hp: 220, maxHp: 220,
-        type: rnd() > 0.5 ? 'cottage' : 'bunker',
-        roofColor: rnd() > 0.5 ? '#c25e36' : '#16a34a'
+    const hHp = 200 + Math.floor(rnd() * 80);
+    const hType = rnd() > 0.5 ? 'cottage' : 'bunker';
+    const hRoof = rnd() > 0.5 ? '#c25e36' : '#16a34a';
+    if (Math.abs(hx - riverX) > 190) {
+      addHouse({
+        x: Math.floor(hx), y: Math.floor(hy), w: 120, h: 90,
+        hp: hHp, maxHp: 280, type: hType, roofColor: hRoof
       });
     }
   }
 
+  // 8. Foliage & Trees
   const foliage = [];
+  function addTree(tl) {
+    if (!doesCircleOverlapRoad(tl.x, tl.y, tl.r, 20)) {
+      foliage.push(tl);
+    }
+  }
   for (let i = 0; i < 40; i++) {
     const tx = 300 + rnd() * (worldW - 600);
     const ty = 200 + rnd() * (worldH - 400);
     const tr = 50 + Math.floor(rnd() * 20);
-    if (Math.abs(tx - riverX) > 160 && !overlapsRoad(tx - tr, ty - tr, tr * 2, tr * 2, 15)) {
-      foliage.push({
-        x: Math.floor(tx), y: Math.floor(ty), r: tr,
-        type: rnd() > 0.3 ? 'oak' : 'pine'
-      });
+    const tType = rnd() > 0.3 ? 'oak' : 'pine';
+    if (Math.abs(tx - riverX) > 160) {
+      addTree({ x: Math.floor(tx), y: Math.floor(ty), r: tr, type: tType });
     }
   }
 
-  const powCamps = [
-    { x: 750 + Math.floor(rnd() * 300), y: 400 + Math.floor(rnd() * 250), w: 100, hp: 180, maxHp: 180 },
-    { x: worldW - 1050 + Math.floor(rnd() * 300), y: worldH - 650 + Math.floor(rnd() * 250), w: 100, hp: 180, maxHp: 180 }
-  ];
+  // 9. POW Camps
+  const powCamps = [];
+  function addPowCamp(pc) {
+    if (!doesRectOverlapRoad(pc.x, pc.y, pc.w, pc.h, 20)) {
+      powCamps.push(pc);
+    }
+  }
+  addPowCamp({
+    x: 1750, y: bridge1Y - 140, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
+    hasGate: true, gateOpen: false, guarded: true, gateW: 24
+  });
+  addPowCamp({
+    x: riverX + 460, y: bridge2Y - 160, w: 100, h: 100, hp: 320, maxHp: 320, prisoners: 8,
+    hasGate: true, gateOpen: false, guarded: false, gateW: 26
+  });
+  addPowCamp({
+    x: 1750, y: bridge3Y + 140, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
+    hasGate: true, gateOpen: false, guarded: true, gateW: 24
+  });
 
-  // Dynamic well-hidden flag in opponent's sector across the river
+  // 10. Dynamic Concealed Opponent Flag
+  const offsetRnd = rnd();
+  const choiceRnd = rnd();
   const flagCandidates = [
-    { x: worldW - 440, y: Math.floor(worldH * 0.22) }, // Secluded northeast mountain valley
-    { x: worldW - 400, y: Math.floor(worldH * 0.78) }, // Hidden southeast canyon
-    { x: riverX + 540, y: Math.floor(worldH * 0.15) }, // Concealed lake cove
-    { x: worldW - 680, y: Math.floor(worldH * 0.82) }, // Fortified southern mountain pass
-    { x: worldW - 580, y: Math.floor(worldH * 0.40) + Math.floor((rnd() - 0.5) * 200) } // Deep interior bunker thicket
+    { x: worldW - 440, y: Math.floor(worldH * 0.22) },
+    { x: worldW - 400, y: Math.floor(worldH * 0.78) },
+    { x: riverX + 540, y: Math.floor(worldH * 0.15) },
+    { x: worldW - 680, y: Math.floor(worldH * 0.82) },
+    { x: worldW - 580, y: Math.floor(worldH * 0.40) + Math.floor((offsetRnd - 0.5) * 200) }
   ];
-  const chosenFlag = flagCandidates[Math.floor(rnd() * flagCandidates.length)];
+  const chosenFlag = flagCandidates[Math.floor(choiceRnd * flagCandidates.length)] || flagCandidates[0];
   const flag = {
     x: Math.floor(chosenFlag.x),
     y: Math.floor(chosenFlag.y),
@@ -146,13 +223,14 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
   };
 
   return {
-    seed,
+    seed: sSeed,
     riverX,
-    riverWidth,
+    riverWidth: riverW,
     bridges,
     waterBodies,
     roads,
     mountains,
+    walls,
     houses,
     foliage,
     powCamps,
@@ -586,7 +664,7 @@ wss.on('connection', (ws) => {
           }
 
           if (room.players.size >= MAX_PLAYERS_PER_ROOM) {
-            ws.send(JSON.stringify({ type: 'error', message: 'Combat room is full! Maximum 5 players already engaged.' }));
+            ws.send(JSON.stringify({ type: 'error', message: 'Room is full (max 2 players)' }));
             return;
           }
 
@@ -674,6 +752,8 @@ wss.on('connection', (ws) => {
           player.fuel = msg.fuel;
           player.score = msg.score;
           player.specialActive = msg.specialActive;
+          if (msg.hasFlag !== undefined) player.hasFlag = msg.hasFlag;
+          if (msg.pows !== undefined) player.pows = msg.pows;
 
           // Broadcast state to all other players in room
           currentRoom.broadcast({
@@ -687,7 +767,9 @@ wss.on('connection', (ws) => {
             maxHealth: player.maxHealth,
             fuel: player.fuel,
             score: player.score,
-            specialActive: player.specialActive
+            specialActive: player.specialActive,
+            hasFlag: msg.hasFlag,
+            pows: msg.pows
           }, playerId);
           break;
         }
@@ -774,6 +856,58 @@ wss.on('connection', (ws) => {
           break;
         }
 
+        // Flag captured event
+        case 'flag_captured': {
+          if (!currentRoom || currentRoom.status !== 'playing') return;
+          currentRoom.broadcast({
+            type: 'flag_captured',
+            playerId: msg.playerId || playerId,
+            x: msg.x,
+            y: msg.y
+          }, playerId);
+          break;
+        }
+
+        // Flag returned event
+        case 'flag_returned': {
+          if (!currentRoom || currentRoom.status !== 'playing') return;
+          currentRoom.broadcast({
+            type: 'flag_returned',
+            playerId: msg.playerId || playerId,
+            flagsCaptured: msg.flagsCaptured,
+            score: msg.score
+          }, playerId);
+          break;
+        }
+
+        // Flag dropped event
+        case 'flag_dropped': {
+          if (!currentRoom || currentRoom.status !== 'playing') return;
+          currentRoom.broadcast({
+            type: 'flag_dropped',
+            playerId: msg.playerId || playerId,
+            homeX: msg.homeX,
+            homeY: msg.homeY,
+            x: msg.x,
+            y: msg.y
+          }, playerId);
+          break;
+        }
+
+        // POW rescued event
+        case 'pow_rescued': {
+          if (!currentRoom || currentRoom.status !== 'playing') return;
+          currentRoom.broadcast({
+            type: 'pow_rescued',
+            playerId: msg.playerId || playerId,
+            count: msg.count,
+            totalRescued: msg.totalRescued,
+            campIndex: msg.campIndex,
+            score: msg.score
+          }, playerId);
+          break;
+        }
+
         // Leave room
         case 'leave_room': {
           if (currentRoom) {
@@ -809,7 +943,18 @@ wss.on('connection', (ws) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Campaign 88 Multiplayer Server online on port ${PORT}`);
-  console.log(`Battlefield scaling enabled: up to ${MAX_PLAYERS_PER_ROOM} players`);
-});
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    generateProceduralTerrain,
+    getDynamicWorldSize,
+    generateBases
+  };
+}
+
+if (require.main === module) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Campaign 88 Multiplayer Server online on port ${PORT}`);
+    console.log(`Battlefield scaling enabled: up to ${MAX_PLAYERS_PER_ROOM} players`);
+  });
+}
+

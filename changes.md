@@ -16,10 +16,33 @@ This document records the complete change management history, architectural evol
 | **v1.3.1** | 2026-10-04 | UI/UX & Responsive Layout Stabilization | CSS Syntax Repair, HTML Structure Realignment, Responsive 100vh Desktop Fitting (No Scrollbars), Streamlined Single-Line Footer Controls, Mobile Portrait Briefing Fit, Unobstructed Touch Controls & Toast Stacking |
 | **v1.4.0** | 2026-10-04 | 1v1 Multiplayer Duel & Tactical Realism | 2-Player Cap, Opposing River Bases, 30Hz Real-Time Driving & Attack Synchronization, Bridge Crossing Ramp Margins, Radar Fog of War Discovery Mask, Seeded Procedural Terrain on Every Game Launch, Hidden God Mode UI |
 | **v1.4.1** | 2026-10-10 | Procedural Complexity & Hidden Objective Specifications | Specs.md PRD Expansion, Heightened Mountain Ranges & Defiles, Tributary Lakes & River Coves, Dynamic Concealed Opponent Flag Placement, Fog of War Flag Discovery Blip |
+| **v1.4.2** | 2026-10-10 | Teamwork Multi-Agent Verification & Hardening | Automated Level Generation Test Suite (`verify_level_gen.js`), Zero Road Clearance Violations (`20px`), Bridge Ramp Safety, Non-Finite Seed Robustness, Multiplayer Flag & POW WebSocket Relays, Victory Audit Confirmed |
 
 ---
 
 ## Detailed Version Changelog
+
+### [v1.4.2] — 2026-10-10 (Teamwork Multi-Agent Verification & Hardening)
+**Focus**: Multi-agent adversarial hardening of the procedural generation engine, implementation of the automated verification harness `verify_level_gen.js`, strict 20px road clearance enforcement, and enriched multiplayer WebSocket relays.
+
+#### 1. Automated Level Generation Verification Suite
+- **CLI Test Harness (`verify_level_gen.js`)**: Implemented automated test suite running across 10 randomized seeds to validate:
+  - 10-Seed Determinism (identical seeds produce byte-identical schemas).
+  - 10-Seed Layout Uniqueness (10/10 distinct layouts generated).
+  - Minimum 20px Road Clearance Margin (0 violations across structures, bunkers, and foliage).
+  - Bridge Crossing Ramp & Approach Corridor (0 collisions on ramp approaches).
+  - Enemy Flag Spatial Dispersion (>= 4 unique locations; 8/10 achieved) and Reachability (no water submersion).
+- **npm Integration**: Connected `"test": "node verify_level_gen.js"` in `package.json`.
+
+#### 2. Generator Hardening & Edge-Case Robustness
+- **Seed Input Sanitization**: Added robust handling for non-finite seeds (`NaN`, `Infinity`, negative numbers, strings, and floats) converting them to deterministic positive 32-bit integer seeds.
+- **Strict Clearance Verification**: Integrated `doesRectOverlapRoad` and `doesCircleOverlapRoad` filters for all procedural houses, bunkers, foliage, and POW compounds.
+
+#### 3. Multiplayer Telemetry & Event Relays
+- Added WebSocket relays in `server.js` for `flag_captured`, `flag_returned`, `flag_dropped`, and `pow_rescued`.
+- Enriched 30Hz player telemetry with `hasFlag` and `pows` counts.
+
+---
 
 ### [v1.4.1] — 2026-10-10 (Procedural Complexity & Hidden Objective Specifications)
 **Focus**: Formalizing procedural terrain complexity requirements in `specs.md`, enriching battlefield natural barriers (rock massifs, lakes, tributary coves), dynamic non-static enemy flag placement in concealed tactical pockets, and fog-of-war flag radar discovery integration.

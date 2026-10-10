@@ -2702,7 +2702,7 @@ let missileStrikeTimer = 32.0; // Countdown until next tactical missile strike
 let droppedWeaponUpgrades = [];
 
 // Road and Cover Spatial Helpers (Requirement: Houses & trees cannot be placed on roads)
-function doesRectOverlapRoad(x, y, w, h, margin = 10) {
+function doesRectOverlapRoad(x, y, w, h, margin = 20) {
   for (let r of roads) {
     if (x + w > r.x - margin && x < r.x + r.w + margin &&
         y + h > r.y - margin && y < r.y + r.h + margin) {
@@ -2712,9 +2712,9 @@ function doesRectOverlapRoad(x, y, w, h, margin = 10) {
   return false;
 }
 
-function doesCircleOverlapRoad(cx, cy, radius, margin = 10) {
+function doesCircleOverlapRoad(cx, cy, radius, margin = 20) {
   for (let r of roads) {
-    const checkR = radius * 0.58 + margin;
+    const checkR = radius + margin;
     const closestX = Math.max(r.x, Math.min(cx, r.x + r.w));
     const closestY = Math.max(r.y, Math.min(cy, r.y + r.h));
     const dx = cx - closestX;
@@ -3873,6 +3873,18 @@ function handleMpServerMessage(msg) {
         rival.score = msg.score || 0;
         rival.specialActive = msg.specialActive;
 
+        if (msg.hasFlag !== undefined) {
+          rival.hasFlag = msg.hasFlag;
+          if (rival.hasFlag && typeof enemyFlag !== 'undefined') {
+            enemyFlag.carried = true;
+            enemyFlag.x = rival.x;
+            enemyFlag.y = rival.y;
+          }
+        }
+        if (msg.pows !== undefined) {
+          rival.pows = msg.pows;
+        }
+
         if (moved && Math.random() < 0.45) {
           treadMarks.push({
             x: rival.x, y: rival.y,
@@ -3882,6 +3894,69 @@ function handleMpServerMessage(msg) {
           });
           if (treadMarks.length > 250) treadMarks.shift();
         }
+      }
+      break;
+
+    case 'flag_captured':
+      if (msg.playerId !== mpPlayerId) {
+        if (typeof enemyFlag !== 'undefined') {
+          enemyFlag.carried = true;
+          if (msg.x !== undefined) enemyFlag.x = msg.x;
+          if (msg.y !== undefined) enemyFlag.y = msg.y;
+        }
+        const rival = mpRivals.get(msg.playerId);
+        if (rival) {
+          rival.hasFlag = true;
+        }
+        if (typeof sfx !== 'undefined' && sfx.playFanfare) sfx.playFanfare();
+        showToast("⚠️ OPPONENT HAS CAPTURED YOUR FLAG!");
+      }
+      break;
+
+    case 'flag_returned':
+      if (msg.playerId !== mpPlayerId) {
+        if (typeof enemyFlag !== 'undefined') {
+          enemyFlag.carried = false;
+          enemyFlag.x = enemyFlag.homeX;
+          enemyFlag.y = enemyFlag.homeY;
+        }
+        const rival = mpRivals.get(msg.playerId);
+        if (rival) {
+          rival.hasFlag = false;
+          if (msg.score !== undefined) rival.score = msg.score;
+        }
+        if (typeof sfx !== 'undefined' && sfx.playAirRaid) sfx.playAirRaid();
+        showToast(`🚨 OPPONENT SCORED A FLAG CAPTURE! (${msg.flagsCaptured || 1} CAPTURES)`);
+      }
+      break;
+
+    case 'flag_dropped':
+      if (msg.playerId !== mpPlayerId) {
+        if (typeof enemyFlag !== 'undefined') {
+          enemyFlag.carried = false;
+          enemyFlag.x = (msg.homeX !== undefined) ? msg.homeX : enemyFlag.homeX;
+          enemyFlag.y = (msg.homeY !== undefined) ? msg.homeY : enemyFlag.homeY;
+        }
+        const rival = mpRivals.get(msg.playerId);
+        if (rival) {
+          rival.hasFlag = false;
+        }
+        showToast("🏳️ ENEMY DROPPED THE FLAG! RETURNED TO BASE.");
+      }
+      break;
+
+    case 'pow_rescued':
+      if (msg.playerId !== mpPlayerId) {
+        if (msg.campIndex !== undefined && typeof powCamps !== 'undefined' && powCamps[msg.campIndex]) {
+          powCamps.splice(msg.campIndex, 1);
+        }
+        const rival = mpRivals.get(msg.playerId);
+        if (rival) {
+          rival.pows = 0;
+          if (msg.score !== undefined) rival.score = msg.score;
+        }
+        if (typeof sfx !== 'undefined' && sfx.playRescue) sfx.playRescue();
+        showToast(`🎖️ OPPONENT EXTRACTED ${msg.count || 1} POWS!`);
       }
       break;
 
@@ -4111,6 +4186,23 @@ function respawnMultiplayerPlayer() {
   player.y = myBase.y;
   player.health = TANK_CLASSES[player.type].maxHealth;
   player.fuel = 100;
+  player.pows = 0;
+  if (player.hasFlag) {
+    player.hasFlag = false;
+    if (typeof enemyFlag !== 'undefined') {
+      enemyFlag.carried = false;
+      enemyFlag.x = enemyFlag.homeX;
+      enemyFlag.y = enemyFlag.homeY;
+    }
+    if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+      mpSocket.send(JSON.stringify({
+        type: 'flag_dropped',
+        playerId: mpPlayerId,
+        homeX: typeof enemyFlag !== 'undefined' ? enemyFlag.homeX : undefined,
+        homeY: typeof enemyFlag !== 'undefined' ? enemyFlag.homeY : undefined
+      }));
+    }
+  }
   mpInvulnerableUntil = performance.now() + 2500; // 2.5s invulnerability shield
 }
 
@@ -4312,10 +4404,18 @@ function showToast(msg) {
 
 // --- WORLD INITIALIZATION (Procedural Terrain Generated on EVERY Game Start) ---
 function initWorld(seed) {
-  const sSeed = (seed !== undefined) ? seed : (Math.floor(Math.random() * 900000) + 100000);
+  let parsed;
+  try {
+    parsed = Number(seed);
+  } catch (e) {
+    parsed = NaN;
+  }
+  const sSeed = (Number.isFinite(parsed) && seed !== undefined && seed !== null && seed !== '')
+    ? Math.abs(Math.floor(parsed)) % 233280
+    : (Math.floor(Math.random() * 900000) + 100000);
   let s = sSeed;
   function rnd() {
-    s = (s * 9301 + 49297) % 233280;
+    s = Math.abs((s * 9301 + 49297) % 233280);
     return s / 233280;
   }
 
@@ -4338,20 +4438,19 @@ function initWorld(seed) {
   // 1. Water Bodies (Procedural River dividing West and East sectors)
   const riverX = Math.floor(WORLD_W * (0.45 + rnd() * 0.10));
   const riverW = 160;
-  waterBodies.push({ x: riverX, y: 0, w: riverW, h: WORLD_H, type: 'river' });
 
-  // Natural lakes & tributary coves
-  waterBodies.push({ x: Math.floor(riverX * 0.58), y: Math.floor(WORLD_H * (0.16 + rnd() * 0.08)), r: 110, type: 'circle' });
-  waterBodies.push({ x: Math.floor(riverX * 0.58), y: Math.floor(WORLD_H * (0.76 + rnd() * 0.08)), r: 110, type: 'circle' });
-  waterBodies.push({ x: riverX + 540, y: Math.floor(WORLD_H * (0.22 + rnd() * 0.08)), r: 95, type: 'circle' });
-
-  // 2. Bridges across the River (Wide decks extending onto both banks to allow smooth crossing)
   const bridgeWidth = riverW + 50;
   const bridgeX = riverX - 25;
   const bridge1Y = Math.floor(WORLD_H * (0.18 + rnd() * 0.08));
   const bridge2Y = Math.floor(WORLD_H * 0.50);
   const bridge3Y = Math.floor(WORLD_H * (0.74 + rnd() * 0.08));
 
+  waterBodies.push({ x: riverX, y: 0, w: riverW, h: WORLD_H, type: 'river' });
+  waterBodies.push({ x: Math.floor(riverX * 0.45), y: Math.floor(bridge1Y * 0.45), r: 85, type: 'circle' });
+  waterBodies.push({ x: Math.floor(riverX * 0.45), y: Math.floor(bridge3Y + (WORLD_H - bridge3Y) * 0.55), r: 85, type: 'circle' });
+  waterBodies.push({ x: riverX + 420, y: Math.floor(bridge1Y * 0.45), r: 85, type: 'circle' });
+
+  // 2. Bridges across the River (Wide decks extending onto both banks to allow smooth crossing)
   bridges.push({ x: bridgeX, y: bridge1Y, w: bridgeWidth, h: 110, name: 'North Bridge', type: 'wood' });
   bridges.push({ x: bridgeX, y: bridge2Y, w: bridgeWidth, h: 120, name: 'Central Highway Bridge', type: 'concrete' });
   bridges.push({ x: bridgeX, y: bridge3Y, w: bridgeWidth, h: 110, name: 'South Pontoon Bridge', type: 'pontoon' });
@@ -4371,7 +4470,6 @@ function initWorld(seed) {
     { x: riverX + 380, y: Math.floor(WORLD_H * 0.65), r: 95 },
     { x: Math.floor(riverX * 0.40), y: Math.floor(WORLD_H * 0.12), r: 85 },
     { x: WORLD_W - Math.floor(riverX * 0.35), y: Math.floor(WORLD_H * 0.88), r: 90 },
-    // Deep eastern mountain ridges creating secluded valley corridors for hidden objectives
     { x: WORLD_W - 460, y: Math.floor(WORLD_H * 0.28), r: 105 },
     { x: WORLD_W - 360, y: Math.floor(WORLD_H * 0.18), r: 85 },
     { x: WORLD_W - 420, y: Math.floor(WORLD_H * 0.72), r: 100 },
@@ -4386,84 +4484,80 @@ function initWorld(seed) {
     });
   }
 
-  // 5. Starting Compound Breach Wall (fp1.jpeg)
-  walls.push({ x: 180, y: bridge2Y - 200, w: 260, h: 48, hp: 150, maxHp: 150 });
-  houses.push({ x: 460, y: bridge2Y - 260, w: 120, h: 100, hp: 220, maxHp: 220, type: 'bunker', roofColor: '#16a34a' });
-  walls.push({ x: 600, y: bridge2Y - 520, w: 48, h: 260, hp: 150, maxHp: 150 });
-
-  walls.push({ x: 180, y: bridge2Y + 240, w: 220, h: 48, hp: 150, maxHp: 150 });
-  walls.push({ x: 500, y: bridge2Y + 240, w: 180, h: 48, hp: 100, maxHp: 150 });
-  for (let i = 0; i < 28; i++) {
-    rubbleChunks.push({
-      x: 400 + rnd() * 100,
-      y: bridge2Y + 235 + rnd() * 55,
-      w: 6 + rnd() * 10,
-      h: 6 + rnd() * 10,
-      color: rnd() > 0.4 ? '#64748b' : '#94a3b8'
-    });
+  // 5. Starting Compound Breach Wall & Perimeter Walls
+  function addWall(w) {
+    if (!doesRectOverlapRoad(w.x, w.y, w.w, w.h, 20)) {
+      walls.push(w);
+    }
   }
+  addWall({ x: 180, y: bridge2Y - 200, w: 260, h: 48, hp: 150, maxHp: 150 });
+  addWall({ x: 600, y: bridge2Y - 520, w: 48, h: 260, hp: 150, maxHp: 150 });
+  addWall({ x: 180, y: bridge2Y + 240, w: 220, h: 48, hp: 150, maxHp: 150 });
+  addWall({ x: 500, y: bridge2Y + 240, w: 180, h: 48, hp: 100, maxHp: 150 });
 
-  // Perimeter walls
   for (let x = 80; x < WORLD_W - 80; x += 80) {
-    walls.push({ x, y: 60, w: 80, h: 48, hp: 120, maxHp: 120 });
-    walls.push({ x, y: WORLD_H - 108, w: 80, h: 48, hp: 120, maxHp: 120 });
+    addWall({ x, y: 60, w: 80, h: 48, hp: 120, maxHp: 120 });
+    addWall({ x, y: WORLD_H - 108, w: 80, h: 48, hp: 120, maxHp: 120 });
   }
   for (let y = 108; y < WORLD_H - 108; y += 80) {
-    walls.push({ x: 60, y, w: 48, h: 80, hp: 120, maxHp: 120 });
-    walls.push({ x: WORLD_W - 108, y, w: 48, h: 80, hp: 120, maxHp: 120 });
+    addWall({ x: 60, y, w: 48, h: 80, hp: 120, maxHp: 120 });
+    addWall({ x: WORLD_W - 108, y, w: 48, h: 80, hp: 120, maxHp: 120 });
   }
 
+  // 6. Cottages & Bunkers
   function addHouse(h) {
     if (!doesRectOverlapRoad(h.x, h.y, h.w, h.h, 20)) {
       houses.push(h);
     }
   }
+  addHouse({ x: 460, y: bridge2Y - 260, w: 120, h: 100, hp: 220, maxHp: 220, type: 'bunker', roofColor: '#16a34a' });
 
-  function addTree(tl) {
-    if (!doesCircleOverlapRoad(tl.x, tl.y, tl.r, 16)) {
-      foliage.push({ x: tl.x, y: tl.y, r: tl.r, type: rnd() > 0.3 ? 'oak' : 'pine' });
-    }
-  }
-
-  // 6. Cottages & Bunkers (Procedural & strictly cleared of roads)
   for (let i = 0; i < 20; i++) {
     const hx = 350 + rnd() * (WORLD_W - 700);
     const hy = 250 + rnd() * (WORLD_H - 500);
+    const hHp = 200 + Math.floor(rnd() * 80);
+    const hType = rnd() > 0.5 ? 'cottage' : 'bunker';
+    const hRoof = rnd() > 0.5 ? '#c25e36' : '#16a34a';
     if (Math.abs(hx - riverX) > 190) {
       addHouse({
-        x: Math.floor(hx),
-        y: Math.floor(hy),
-        w: 120,
-        h: 90,
-        hp: 200 + Math.floor(rnd() * 80),
-        maxHp: 280,
-        type: rnd() > 0.5 ? 'cottage' : 'barracks',
-        roofColor: rnd() > 0.5 ? '#c25e36' : '#b45309'
+        x: Math.floor(hx), y: Math.floor(hy), w: 120, h: 90,
+        hp: hHp, maxHp: 280, type: hType, roofColor: hRoof
       });
     }
   }
 
-  // 7. Trees & Foliage (Procedural & strictly cleared of roads)
+  // 7. Trees & Foliage
+  function addTree(tl) {
+    if (!doesCircleOverlapRoad(tl.x, tl.y, tl.r, 20)) {
+      foliage.push({ x: tl.x, y: tl.y, r: tl.r, type: tl.type });
+    }
+  }
   for (let i = 0; i < 40; i++) {
     const tx = 300 + rnd() * (WORLD_W - 600);
     const ty = 200 + rnd() * (WORLD_H - 400);
     const tr = 50 + Math.floor(rnd() * 20);
+    const tType = rnd() > 0.3 ? 'oak' : 'pine';
     if (Math.abs(tx - riverX) > 160) {
-      addTree({ x: Math.floor(tx), y: Math.floor(ty), r: tr });
+      addTree({ x: Math.floor(tx), y: Math.floor(ty), r: tr, type: tType });
     }
   }
 
   // 8. POW Camps
-  powCamps.push({
-    x: 1750, y: bridge1Y + 60, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
+  function addPowCamp(pc) {
+    if (!doesRectOverlapRoad(pc.x, pc.y, pc.w, pc.h, 20)) {
+      powCamps.push(pc);
+    }
+  }
+  addPowCamp({
+    x: 1750, y: bridge1Y - 140, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
     hasGate: true, gateOpen: false, guarded: true, gateW: 24
   });
-  powCamps.push({
-    x: riverX + 460, y: bridge2Y + 55, w: 100, h: 100, hp: 320, maxHp: 320, prisoners: 8,
+  addPowCamp({
+    x: riverX + 460, y: bridge2Y - 160, w: 100, h: 100, hp: 320, maxHp: 320, prisoners: 8,
     hasGate: true, gateOpen: false, guarded: false, gateW: 26
   });
-  powCamps.push({
-    x: 1750, y: bridge3Y + 60, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
+  addPowCamp({
+    x: 1750, y: bridge3Y + 140, w: 90, h: 90, hp: 280, maxHp: 280, prisoners: 6,
     hasGate: true, gateOpen: false, guarded: true, gateW: 24
   });
 
@@ -4473,16 +4567,17 @@ function initWorld(seed) {
   enemyBase.x = WORLD_W - 380;
   enemyBase.y = Math.floor(WORLD_H * 0.5);
 
-  // Dynamic well-hidden flag in opponent's sector across the river
-  // "the opponents flag really needs to be well hidden en not always in the same place."
+  // 9. Dynamic well-hidden flag in opponent's sector across the river
+  const offsetRnd = rnd();
+  const choiceRnd = rnd();
   const flagCandidates = [
-    { x: WORLD_W - 440, y: Math.floor(WORLD_H * 0.22) }, // Secluded northeast mountain valley
-    { x: WORLD_W - 400, y: Math.floor(WORLD_H * 0.78) }, // Hidden southeast canyon
-    { x: riverX + 540, y: Math.floor(WORLD_H * 0.15) }, // Concealed lake cove
-    { x: WORLD_W - 680, y: Math.floor(WORLD_H * 0.82) }, // Fortified southern mountain pass
-    { x: WORLD_W - 580, y: Math.floor(WORLD_H * 0.40) + Math.floor((rnd() - 0.5) * 200) } // Deep interior bunker thicket
+    { x: WORLD_W - 440, y: Math.floor(WORLD_H * 0.22) },
+    { x: WORLD_W - 400, y: Math.floor(WORLD_H * 0.78) },
+    { x: riverX + 540, y: Math.floor(WORLD_H * 0.15) },
+    { x: WORLD_W - 680, y: Math.floor(WORLD_H * 0.82) },
+    { x: WORLD_W - 580, y: Math.floor(WORLD_H * 0.40) + Math.floor((offsetRnd - 0.5) * 200) }
   ];
-  const chosenFlag = flagCandidates[Math.floor(rnd() * flagCandidates.length)];
+  const chosenFlag = flagCandidates[Math.floor(choiceRnd * flagCandidates.length)] || flagCandidates[0];
   enemyFlag = {
     x: Math.floor(chosenFlag.x),
     y: Math.floor(chosenFlag.y),
@@ -4495,6 +4590,17 @@ function initWorld(seed) {
   player.y = homeBase.y;
   player.angle = 0;
   player.turretAngle = 0;
+
+  // Visual Rubble Chunks
+  for (let i = 0; i < 28; i++) {
+    rubbleChunks.push({
+      x: 400 + rnd() * 100,
+      y: bridge2Y + 235 + rnd() * 55,
+      w: 6 + rnd() * 10,
+      h: 6 + rnd() * 10,
+      color: rnd() > 0.4 ? '#64748b' : '#94a3b8'
+    });
+  }
 
   // Solo mode defenders & targets
   if (!isMultiplayerMode) {
@@ -4715,7 +4821,9 @@ function update(dt) {
         maxHealth: spec.maxHealth,
         fuel: Math.round(player.fuel),
         score: score,
-        specialActive: player.specialActive
+        specialActive: player.specialActive,
+        hasFlag: !!player.hasFlag,
+        pows: player.pows || 0
       }));
     }
   }
@@ -5531,11 +5639,21 @@ function update(dt) {
       player.mines = spec.mines;
 
       if (player.pows > 0) {
+        const rescuedCount = player.pows;
         rescuedPowsTotal += player.pows;
         score += player.pows * 250;
         showToast(`SAFELY EXTRACTED ${player.pows} POWS! +${player.pows * 250} PTS`);
         player.pows = 0;
         sfx.playRescue();
+        if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+          mpSocket.send(JSON.stringify({
+            type: 'pow_rescued',
+            playerId: mpPlayerId,
+            count: rescuedCount,
+            totalRescued: rescuedPowsTotal,
+            score: score
+          }));
+        }
       }
 
       if (player.hasFlag) {
@@ -5547,6 +5665,14 @@ function update(dt) {
         enemyFlag.x = enemyFlag.homeX;
         enemyFlag.y = enemyFlag.homeY;
         showToast("ENEMY BASE CAPTURED! +1000 PTS!");
+        if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+          mpSocket.send(JSON.stringify({
+            type: 'flag_returned',
+            playerId: mpPlayerId,
+            flagsCaptured: flagsCaptured,
+            score: score
+          }));
+        }
       }
     }
   }
@@ -5557,6 +5683,14 @@ function update(dt) {
     enemyFlag.carried = true;
     sfx.playFanfare();
     showToast("ENEMY FLAG CAPTURED! RETURN TO HOME BASE GARAGE!");
+    if (isMultiplayerMode && mpSocket && mpSocket.readyState === WebSocket.OPEN) {
+      mpSocket.send(JSON.stringify({
+        type: 'flag_captured',
+        playerId: mpPlayerId,
+        x: enemyFlag.x,
+        y: enemyFlag.y
+      }));
+    }
   }
   if (enemyFlag.carried) {
     enemyFlag.x = player.x;
