@@ -51,7 +51,10 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
   ];
 
   const waterBodies = [
-    { x: riverX, y: 0, w: riverWidth, h: worldH, type: 'river' }
+    { x: riverX, y: 0, w: riverWidth, h: worldH, type: 'river' },
+    { x: Math.floor(riverX * 0.58), y: Math.floor(worldH * (0.16 + rnd() * 0.08)), r: 110, type: 'circle' },
+    { x: Math.floor(riverX * 0.58), y: Math.floor(worldH * (0.76 + rnd() * 0.08)), r: 110, type: 'circle' },
+    { x: riverX + 540, y: Math.floor(worldH * (0.22 + rnd() * 0.08)), r: 95, type: 'circle' }
   ];
 
   const roads = [
@@ -74,22 +77,29 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
 
   const mountains = [];
   const mPassOffsets = [
-    { x: riverX - 380, y: Math.floor(worldH * 0.35) },
-    { x: riverX + 380, y: Math.floor(worldH * 0.35) },
-    { x: riverX - 380, y: Math.floor(worldH * 0.65) },
-    { x: riverX + 380, y: Math.floor(worldH * 0.65) }
+    { x: riverX - 380, y: Math.floor(worldH * 0.35), r: 95 },
+    { x: riverX + 380, y: Math.floor(worldH * 0.35), r: 95 },
+    { x: riverX - 380, y: Math.floor(worldH * 0.65), r: 95 },
+    { x: riverX + 380, y: Math.floor(worldH * 0.65), r: 95 },
+    { x: Math.floor(riverX * 0.40), y: Math.floor(worldH * 0.12), r: 85 },
+    { x: worldW - Math.floor(riverX * 0.35), y: Math.floor(worldH * 0.88), r: 90 },
+    // Deep eastern mountain ridges creating secluded valley corridors for hidden objectives
+    { x: worldW - 460, y: Math.floor(worldH * 0.28), r: 105 },
+    { x: worldW - 360, y: Math.floor(worldH * 0.18), r: 85 },
+    { x: worldW - 420, y: Math.floor(worldH * 0.72), r: 100 },
+    { x: worldW - 550, y: Math.floor(worldH * 0.82), r: 85 }
   ];
   for (const m of mPassOffsets) {
     mountains.push({
       x: m.x + (rnd() - 0.5) * 40,
       y: m.y + (rnd() - 0.5) * 40,
-      r: 95 + Math.floor(rnd() * 25),
+      r: m.r + Math.floor(rnd() * 20),
       peakX: -10, peakY: -15
     });
   }
 
   const houses = [];
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 18; i++) {
     const hx = 350 + rnd() * (worldW - 700);
     const hy = 250 + rnd() * (worldH - 500);
     if (Math.abs(hx - riverX) > 190 && !overlapsRoad(hx, hy, 120, 90, 20)) {
@@ -102,7 +112,7 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
   }
 
   const foliage = [];
-  for (let i = 0; i < 35; i++) {
+  for (let i = 0; i < 40; i++) {
     const tx = 300 + rnd() * (worldW - 600);
     const ty = 200 + rnd() * (worldH - 400);
     const tr = 50 + Math.floor(rnd() * 20);
@@ -119,6 +129,22 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
     { x: worldW - 1050 + Math.floor(rnd() * 300), y: worldH - 650 + Math.floor(rnd() * 250), w: 100, hp: 180, maxHp: 180 }
   ];
 
+  // Dynamic well-hidden flag in opponent's sector across the river
+  const flagCandidates = [
+    { x: worldW - 440, y: Math.floor(worldH * 0.22) }, // Secluded northeast mountain valley
+    { x: worldW - 400, y: Math.floor(worldH * 0.78) }, // Hidden southeast canyon
+    { x: riverX + 540, y: Math.floor(worldH * 0.15) }, // Concealed lake cove
+    { x: worldW - 680, y: Math.floor(worldH * 0.82) }, // Fortified southern mountain pass
+    { x: worldW - 580, y: Math.floor(worldH * 0.40) + Math.floor((rnd() - 0.5) * 200) } // Deep interior bunker thicket
+  ];
+  const chosenFlag = flagCandidates[Math.floor(rnd() * flagCandidates.length)];
+  const flag = {
+    x: Math.floor(chosenFlag.x),
+    y: Math.floor(chosenFlag.y),
+    homeX: Math.floor(chosenFlag.x),
+    homeY: Math.floor(chosenFlag.y)
+  };
+
   return {
     seed,
     riverX,
@@ -129,7 +155,9 @@ function generateProceduralTerrain(worldW, worldH, seed = Math.floor(Math.random
     mountains,
     houses,
     foliage,
-    powCamps
+    powCamps,
+    flag,
+    enemyFlag: flag
   };
 }
 

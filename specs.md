@@ -4,10 +4,11 @@ Project Fire Power: Legacy (Modern Retro Revival)
 Metadata Attribute	Enterprise Specification
 Document ID	PRD-FPL-2026-10
 Project Codename	Fire Power: Legacy
-Document Version	1.0.0-Draft
+Document Version	1.1.0-Draft
+Last Updated	2026-10-10
 Target Launch	Q3 2027
 Status	In Review
-Author	Gemini Enterprise
+Author	MaartenW
 Target Platform	PC (Steam, GOG, WebGL / Modern Browsers)
  
 2. Executive Summary & BLUF (Bottom Line Up Front)
@@ -40,19 +41,28 @@ Heavy Tank	High (400 HP)	Slow (65%)	16 (Max)	Siege Mode: Anchor in place to doub
  
 6. Functional Requirements & Scope
 🟢 P0 (Must-Have for Minimum Viable Product)
-Classic Game Loop: Complete reproduction of CTF mechanics (grabbing the flag, returning it to home base), POW cell destruction, soldier rescue, and First Aid tent mechanics 
+Classic Game Loop: Complete reproduction of CTF mechanics (grabbing the flag, returning it to home base), POW cell destruction, soldier rescue, and First Aid tent mechanics.
 
- .
+Procedural Level & Complex Terrain Re-Generation (Every Game Launch):
+- **Per-Game Procedural Re-Generation**: Battlefield levels must be completely procedurally re-generated on every single game launch (both Solo Skirmish and Online Multiplayer). No two matches share the same geography or layout.
+- **Complex Terrain & Natural Barriers**:
+  - **Dynamic Rivers & Waterways**: Deep meandering watercourses and river channels acting as impassable barriers that divide the map into distinct operational theaters.
+  - **Strategic Bridge Chokepoints**: Multiple tactical bridges (timber, reinforced concrete, pontoon) spanning waterways, serving as high-stakes crossing corridors and ambush points.
+  - **Craggy Mountain Ranges**: Impassable rocky massifs, cliffs, and mountain peaks that shape natural canyons, chokepoints, and line-of-sight obstructions, forcing tactical detour planning.
+  - **Obstruction-Free Road Corridors**: Paved and dirt highway arteries connecting bases and bridges, guaranteed to remain clear of houses, walls, and tree trunks for high-speed transit.
+  - **Tactical Foliage & Forest Groves**: Dense pine and oak canopies providing 50% defense cover against incoming artillery, combined with solid inner tree trunks that physically halt tank driving.
+  - **Demolishable Outposts & Fortified Camps**: Civilian structures yielding weapon upgrades upon destruction, and fortified POW camps guarded by hostile sentries behind locked gates.
 
-Local Split-Screen: Flawless horizontal split-screen implementation supporting keyboard/mouse and gamepad dual-input.
+Dynamic & Well-Hidden Opponent Flag Placement:
+- **Non-Static Flag Spawns**: The opponent's flag must never spawn in a predictable, static location.
+- **Deeply Concealed Positions**: Each procedural generation must place the enemy flag in a distinct, well-hidden, and tactically challenging location (e.g., secluded mountain defiles, deep behind dense forest canopies, or tucked within fortified defensive compounds).
+- **Reconnaissance & Fog of War Integration**: Players must actively scout the battlefield and penetrate the radar fog of war to locate the opponent's flag, eliminating blind-rush tactics and rewarding tactical reconnaissance.
 
 Basic Destruction Engine: Fully destructible perimeter walls, gates, and civilian structures with satisfying pixelated explosion animations.
 
 The "Anti-Camp" Mechanic: If a player remains static within a 20-meter radius for more than 45 seconds, an AI attack helicopter spawns off-screen to pursue them.
 
-Physical Soldier Interaction: Driving over fleeing soldiers triggers the classic squish audio cue and places a temporary red decal on the terrain 
-
- .
+Physical Soldier Interaction: Driving over fleeing soldiers triggers the classic squish audio cue and places a temporary red decal on the terrain.
 
 🟡 P1 (Should-Have for General Availability)
 Online Multiplayer with Rollback Netcode: Low-latency online peer-to-head multiplayer utilizing rollback logic to replicate local split-screen feel online.
@@ -75,12 +85,6 @@ Single-Player Story Campaign: Narrative-driven missions are out of scope. AI bot
 |  - Real-time physics, explosions, and destructible walls  |
 |                                                           |
 +-----------------------------------------------------------+
-| ================== HORIZONTAL SPLIT ===================== |
-+-----------------------------------------------------------+
-|  [P2 VIEWPORT: Top-Down Tank View]                       |
-|  - Tracks Player 2 tank at center                         |
-|                                                           |
-|                                                           |
 +-----------------------------------------------------------+
 | HUD PANEL (Right-Side Stencil Board):                     |
 | [P1 HP: ||||||| ] [POWs: 4/16] [Mines: 3] [Fuel: 80%]     |
@@ -90,6 +94,8 @@ Visual Style: High-quality, modern 16-bit pixel art with fluid 60FPS animations.
 
 Audio Direction: Rich, crunchy, retro-synthesized sound effects for tank diesel engines, mechanical turret rotations, metal-tearing explosions, and the signature "squish" sound for infantry runovers.
 
+Tactical Radar & Fog of War: A military CRT phosphor radar display shrouded by a persistent fog of war. Unexplored terrain, natural barriers (rivers, mountain defiles), civilian structures, enemy installations, and the well-hidden opponent flag remain completely concealed until physically scouted and uncovered by the player's reconnaissance sweep.
+
 8. Success Metrics & Telemetry
 DORA Velocity: Code-to-deployment time under 4 hours for emergency hotfixes to netcode.
 
@@ -97,14 +103,4 @@ Gameplay Balance Metric: The win-loss ratio between the Light, Medium, and Heavy
 
 Creative Retention: Monthly active user-generated map submissions on the Steam Workshop.
 
-B
-B
-B
-B
-B
-B
-B
-B
-B
-B
 

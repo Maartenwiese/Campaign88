@@ -15,10 +15,32 @@ This document records the complete change management history, architectural evol
 | **v1.3.0** | 2026-10-04 | Combat & Tactical Gameplay Adaptations | Road Clearance, Solid Tree Trunks & Canopy Cover (50% Def), POW Camp Gates & Sentries, Incoming Missile Alert (3-5s), Weapon Upgrades, Cheat Mode (`+++`), Chassis Lock, Player Drone Strike |
 | **v1.3.1** | 2026-10-04 | UI/UX & Responsive Layout Stabilization | CSS Syntax Repair, HTML Structure Realignment, Responsive 100vh Desktop Fitting (No Scrollbars), Streamlined Single-Line Footer Controls, Mobile Portrait Briefing Fit, Unobstructed Touch Controls & Toast Stacking |
 | **v1.4.0** | 2026-10-04 | 1v1 Multiplayer Duel & Tactical Realism | 2-Player Cap, Opposing River Bases, 30Hz Real-Time Driving & Attack Synchronization, Bridge Crossing Ramp Margins, Radar Fog of War Discovery Mask, Seeded Procedural Terrain on Every Game Launch, Hidden God Mode UI |
+| **v1.4.1** | 2026-10-10 | Procedural Complexity & Hidden Objective Specifications | Specs.md PRD Expansion, Heightened Mountain Ranges & Defiles, Tributary Lakes & River Coves, Dynamic Concealed Opponent Flag Placement, Fog of War Flag Discovery Blip |
 
 ---
 
 ## Detailed Version Changelog
+
+### [v1.4.1] — 2026-10-10 (Procedural Complexity & Hidden Objective Specifications)
+**Focus**: Formalizing procedural terrain complexity requirements in `specs.md`, enriching battlefield natural barriers (rock massifs, lakes, tributary coves), dynamic non-static enemy flag placement in concealed tactical pockets, and fog-of-war flag radar discovery integration.
+
+#### 1. Requirements Formalization in `specs.md`
+- **Section 6 (Functional Requirements & Scope)**:
+  - Added formal P0 specification for **Procedural Level & Complex Terrain Re-Generation**: Battlefield levels must be completely procedurally re-generated on every single game launch (both Solo Skirmish and Online Multiplayer).
+  - Added explicit terrain specifications for dynamic rivers, chokepoint bridges, craggy mountain ranges, clear road corridors, tactical foliage groves, and fortified civilian/POW compounds.
+  - Added formal requirement for **Dynamic & Well-Hidden Opponent Flag Placement**: Opponent's flag must never spawn in a static, predictable location, requiring tactical reconnaissance and radar fog-of-war uncovering.
+- **Section 1 & 7**: Updated governance versioning (`v1.1.0-Draft`) and added Tactical Radar & Fog of War specification to UI/UX guidelines.
+
+#### 2. Heightened Terrain Complexity & Natural Barriers
+- **Expanded Waterways & Tributary Lakes**: Added multiple procedural lakes and river coves across the battlefield in both `server.js` and `index.html`.
+- **Craggy Mountain Ranges & Tactical Passes**: Added 4 new eastern mountain crag formations (`r: 85 - 105px`), creating secluded canyons, winding passes, and natural defiles.
+
+#### 3. Dynamic & Deeply Hidden Opponent Flag
+- **Dynamic Secluded Spawn Pockets**: Opponent's flag is dynamically placed on every game launch into randomized, tactical hiding spots across the river (northeast mountain valley, southeast canyon, concealed lake cove, southern mountain pass, or interior bunker thicket).
+- **Radar Fog of War Integration**: The opponent's flag is strictly veiled on the CRT radar until the player explores the coordinate grid where the flag is located.
+- **Multiplayer Flag Synchronization**: Server communicates randomized procedural flag position via `room.terrain.flag` ensuring identical objective coordinates for both duelists.
+
+---
 
 ### [v1.4.0] — 2026-10-04 (1v1 Multiplayer Duel & Tactical Realism)
 **Focus**: 1v1 duel multiplayer capping, opposing river bases, live opponent movement synchronization, bridge traversal physics, progressive radar fog of war reveal, procedural battlefield generation on every game start, and hidden god mode.

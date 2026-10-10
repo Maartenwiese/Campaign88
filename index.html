@@ -4213,6 +4213,16 @@ function setDynamicMultiplayerWorld(room) {
     houses = JSON.parse(JSON.stringify(t.houses || []));
     foliage = JSON.parse(JSON.stringify(t.foliage || []));
     powCamps = JSON.parse(JSON.stringify(t.powCamps || []));
+    if (t.flag || t.enemyFlag) {
+      const f = t.flag || t.enemyFlag;
+      enemyFlag = {
+        x: f.x,
+        y: f.y,
+        homeX: f.homeX || f.x,
+        homeY: f.homeY || f.y,
+        carried: false
+      };
+    }
   } else {
     initWorld(room ? room.seed : undefined);
     return;
@@ -4330,9 +4340,10 @@ function initWorld(seed) {
   const riverW = 160;
   waterBodies.push({ x: riverX, y: 0, w: riverW, h: WORLD_H, type: 'river' });
 
-  // Natural lakes
-  waterBodies.push({ x: Math.floor(riverX * 0.62), y: Math.floor(WORLD_H * (0.16 + rnd() * 0.08)), r: 105, type: 'circle' });
-  waterBodies.push({ x: Math.floor(riverX * 0.62), y: Math.floor(WORLD_H * (0.76 + rnd() * 0.08)), r: 105, type: 'circle' });
+  // Natural lakes & tributary coves
+  waterBodies.push({ x: Math.floor(riverX * 0.58), y: Math.floor(WORLD_H * (0.16 + rnd() * 0.08)), r: 110, type: 'circle' });
+  waterBodies.push({ x: Math.floor(riverX * 0.58), y: Math.floor(WORLD_H * (0.76 + rnd() * 0.08)), r: 110, type: 'circle' });
+  waterBodies.push({ x: riverX + 540, y: Math.floor(WORLD_H * (0.22 + rnd() * 0.08)), r: 95, type: 'circle' });
 
   // 2. Bridges across the River (Wide decks extending onto both banks to allow smooth crossing)
   const bridgeWidth = riverW + 50;
@@ -4352,20 +4363,25 @@ function initWorld(seed) {
   roads.push({ x: 850, y: bridge1Y + 10, w: 90, h: bridge3Y - bridge1Y });
   roads.push({ x: WORLD_W - 940, y: bridge1Y + 10, w: 90, h: bridge3Y - bridge1Y });
 
-  // 4. Mountains as tactical bastions flanking the passes
+  // 4. Mountains as tactical bastions flanking the passes and craggy eastern ridges
   const mOffsets = [
-    { x: riverX - 380, y: Math.floor(WORLD_H * 0.35) },
-    { x: riverX + 380, y: Math.floor(WORLD_H * 0.35) },
-    { x: riverX - 380, y: Math.floor(WORLD_H * 0.65) },
-    { x: riverX + 380, y: Math.floor(WORLD_H * 0.65) },
-    { x: Math.floor(riverX * 0.4), y: Math.floor(WORLD_H * 0.12) },
-    { x: WORLD_W - Math.floor(riverX * 0.4), y: Math.floor(WORLD_H * 0.88) }
+    { x: riverX - 380, y: Math.floor(WORLD_H * 0.35), r: 95 },
+    { x: riverX + 380, y: Math.floor(WORLD_H * 0.35), r: 95 },
+    { x: riverX - 380, y: Math.floor(WORLD_H * 0.65), r: 95 },
+    { x: riverX + 380, y: Math.floor(WORLD_H * 0.65), r: 95 },
+    { x: Math.floor(riverX * 0.40), y: Math.floor(WORLD_H * 0.12), r: 85 },
+    { x: WORLD_W - Math.floor(riverX * 0.35), y: Math.floor(WORLD_H * 0.88), r: 90 },
+    // Deep eastern mountain ridges creating secluded valley corridors for hidden objectives
+    { x: WORLD_W - 460, y: Math.floor(WORLD_H * 0.28), r: 105 },
+    { x: WORLD_W - 360, y: Math.floor(WORLD_H * 0.18), r: 85 },
+    { x: WORLD_W - 420, y: Math.floor(WORLD_H * 0.72), r: 100 },
+    { x: WORLD_W - 550, y: Math.floor(WORLD_H * 0.82), r: 85 }
   ];
   for (const m of mOffsets) {
     mountains.push({
       x: m.x + (rnd() - 0.5) * 40,
       y: m.y + (rnd() - 0.5) * 40,
-      r: 95 + Math.floor(rnd() * 25),
+      r: m.r + Math.floor(rnd() * 20),
       peakX: -10, peakY: -15
     });
   }
@@ -4456,6 +4472,24 @@ function initWorld(seed) {
   homeBase.y = Math.floor(WORLD_H * 0.5);
   enemyBase.x = WORLD_W - 380;
   enemyBase.y = Math.floor(WORLD_H * 0.5);
+
+  // Dynamic well-hidden flag in opponent's sector across the river
+  // "the opponents flag really needs to be well hidden en not always in the same place."
+  const flagCandidates = [
+    { x: WORLD_W - 440, y: Math.floor(WORLD_H * 0.22) }, // Secluded northeast mountain valley
+    { x: WORLD_W - 400, y: Math.floor(WORLD_H * 0.78) }, // Hidden southeast canyon
+    { x: riverX + 540, y: Math.floor(WORLD_H * 0.15) }, // Concealed lake cove
+    { x: WORLD_W - 680, y: Math.floor(WORLD_H * 0.82) }, // Fortified southern mountain pass
+    { x: WORLD_W - 580, y: Math.floor(WORLD_H * 0.40) + Math.floor((rnd() - 0.5) * 200) } // Deep interior bunker thicket
+  ];
+  const chosenFlag = flagCandidates[Math.floor(rnd() * flagCandidates.length)];
+  enemyFlag = {
+    x: Math.floor(chosenFlag.x),
+    y: Math.floor(chosenFlag.y),
+    homeX: Math.floor(chosenFlag.x),
+    homeY: Math.floor(chosenFlag.y),
+    carried: false
+  };
 
   player.x = homeBase.x;
   player.y = homeBase.y;
@@ -6856,6 +6890,17 @@ function renderConsoleRadar() {
     radarCtx.lineWidth = 1.5;
     radarCtx.beginPath();
     radarCtx.arc(incomingMissile.x * sx, incomingMissile.y * sy, Math.max(4, incomingMissile.r * sx), 0, Math.PI * 2);
+    radarCtx.stroke();
+  }
+
+  // 12d. Opponent's Well-Hidden Flag on Radar (ONLY if discovered!)
+  if (!player.hasFlag && isWorldPosDiscovered(enemyFlag.x, enemyFlag.y)) {
+    radarCtx.fillStyle = '#f43f5e';
+    radarCtx.beginPath();
+    radarCtx.arc(enemyFlag.x * sx, enemyFlag.y * sy, 4.5, 0, Math.PI * 2);
+    radarCtx.fill();
+    radarCtx.strokeStyle = '#ffffff';
+    radarCtx.lineWidth = 1.2;
     radarCtx.stroke();
   }
 
